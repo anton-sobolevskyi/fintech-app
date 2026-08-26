@@ -1,5 +1,6 @@
 import { inject, InjectionToken } from '@angular/core';
 import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAnalytics, Analytics } from 'firebase/analytics';
 
 import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, Firestore } from 'firebase/firestore';
@@ -49,5 +50,12 @@ export const FIREBASE_STORAGE = new InjectionToken<FirebaseStorage>('FIREBASE_ST
       connectStorageEmulator(storage, 'localhost', 9199);
     }
     return storage;
+  },
+});
+
+export const FIREBASE_ANALYTICS = new InjectionToken<Analytics | null>('FIREBASE_ANALYTICS', {
+  factory: () => {
+    if (!environment.production) return null; // no Analytics emulator, so just disable locally
+    return getAnalytics(inject(FIREBASE_APP));
   },
 });
