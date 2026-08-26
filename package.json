@@ -8,9 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:fintech-app": "node dist/fintech-app/server/server.mjs",
-    "generate:env": "npx ts-node scripts/generate-prod-env.mts",
-    "prestart": "npx ts-node scripts/set-env.mts",
-    "prebuild": "npx ts-node scripts/set-env.mts -- --prod"
+    "generate:env": "tsx scripts/generate-prod-env.mts",
+    "prestart": "tsx scripts/set-env.mts",
+    "prebuild": "tsx scripts/set-env.mts -- --prod"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -27,7 +27,8 @@
     "firebase": "^12.18.0",
     "js-yaml": "^5.4.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "tsx": "^4.23.12"
   },
   "devDependencies": {
     "@angular/build": "^22.1.5",
