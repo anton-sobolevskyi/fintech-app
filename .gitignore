@@ -46,3 +46,4 @@ Thumbs.db
 # Environment files
 src/environments/
 .env
+config/env.prod.yaml
