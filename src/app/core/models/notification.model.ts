@@ -9,6 +9,6 @@ export interface Notification {
   message: string;
   type: NotificationType;
   read: boolean;
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
   link?: string;
 }

@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 
 export type ReportType = 'balance' | 'transactions' | 'performance' | 'custom';
 export type ReportStatus = 'generating' | 'ready' | 'failed';
@@ -14,7 +14,7 @@ export interface Report {
     accountIds?: string[];
     currencies?: string[];
   };
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
   status: ReportStatus;
   downloadUrl?: string;
 }

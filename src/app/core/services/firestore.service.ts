@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject } from '@angular/core';
 import {
   collection,
   doc,
@@ -32,8 +32,7 @@ export interface PagedResult<T> {
   hasMore: boolean;
 }
 
-@Injectable()
-export abstract class BaseFirestoreService<T extends FirestoreEntity> {
+export abstract class FirestoreService<T extends FirestoreEntity> {
   protected firestore = inject(FIRESTORE);
   protected abstract collectionName: string;
 

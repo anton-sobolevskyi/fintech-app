@@ -14,6 +14,6 @@ export interface Account {
   availableBalance: number;
   status: AccountStatus;
   iban?: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }

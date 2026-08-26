@@ -8,9 +8,9 @@ export interface DataSource {
   name: string;
   cloudType: CloudType;
   status: SourceStatus;
-  lastSyncAt: Timestamp;
+  lastSyncAt?: Timestamp;
   latencyMs: number;
-  errorRate: number; // 0–100
+  errorRate: number;
   region: string;
   description?: string;
 }

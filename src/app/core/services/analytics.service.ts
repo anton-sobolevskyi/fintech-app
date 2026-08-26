@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { Analytics, getAnalytics, isSupported, logEvent } from 'firebase/analytics';
-import { environment } from '../../environments/environment';
-import { FIREBASE_APP } from './firebase';
+import { environment } from '../../../environments/environment';
+import { FIREBASE_APP } from '../firebase';
 
 @Service()
 export class AnalyticsService {

@@ -16,7 +16,7 @@ export interface Transaction {
   counterpartyName?: string;
   counterpartyIban?: string;
   reference?: string;
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
   processedAt?: Timestamp;
   metadata?: Record<string, any>;
 }

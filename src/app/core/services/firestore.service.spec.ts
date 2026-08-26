@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { FirestoreService } from './firestore.service';
+import { FirestoreEntity, FirestoreService } from './firestore.service';
 
 describe('FirestoreService', () => {
-  let service: FirestoreService;
+  let service: FirestoreService<FirestoreEntity>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [FirestoreService],
+    });
     service = TestBed.inject(FirestoreService);
   });
 
