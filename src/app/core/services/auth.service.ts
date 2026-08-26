@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -11,7 +11,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
 import { User } from '../models';
 
-@Injectable()
+@Service()
 export class AuthService {
   private auth = inject(FIREBASE_AUTH);
   private firestore = inject(FIRESTORE);

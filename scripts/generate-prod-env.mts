@@ -1,5 +1,6 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { dump } from 'js-yaml';
+import { EnvConfig } from '../types/env';
 
 function requireEnv(key: string): string {
   const value = process.env[key];
@@ -9,9 +10,10 @@ function requireEnv(key: string): string {
   return value;
 }
 
-const config = {
+const config: EnvConfig = {
   production: true,
   useEmulators: false,
+  primeNgLicense: requireEnv('PRIME_NG_LICENSE'),
   firebase: {
     apiKey: requireEnv('FIREBASE_API_KEY'),
     authDomain: requireEnv('FIREBASE_AUTH_DOMAIN'),

@@ -1,0 +1,57 @@
+<div class="flex justify-center min-h-screen items-center">
+  <p-card class="max-w-sm w-full" header="BankDataHub" subheader="Sign in to your account">
+    <form id="login-form" [formRoot]="loginForm" class="space-y-2 my-4">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="email">Email</label>
+        <input
+          pInputText
+          id="email"
+          [formField]="loginForm.email"
+          type="email"
+          class="w-full"
+          autocomplete="email"
+        />
+
+        @if (loginForm.email().touched() && loginForm.email().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ loginForm.email().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="password">Password</label>
+        <input
+          pInputText
+          id="password"
+          [formField]="loginForm.password"
+          type="password"
+          class="w-full"
+          autocomplete="current-password"
+        />
+
+        @if (loginForm.password().touched() && loginForm.password().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ loginForm.password().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      @if (error()) {
+        <p-message severity="error" styleClass="w-full">{{ error() }}</p-message>
+      }
+    </form>
+
+    <ng-template #footer>
+      <div class="flex flex-col gap-4">
+        <button type="button" pButton class="w-full" form="login-form" [disabled]="loading()">
+          Login
+        </button>
+        <div class="mt-2 text-center text-surface-500 text-sm">
+          Don't have an account?
+          <a routerLink="/register" type="button" pButton variant="link" class="p-0">Sign up</a>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

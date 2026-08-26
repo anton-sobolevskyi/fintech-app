@@ -1,3 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import "primeicons/primeicons.css";
+
+.p-inputtext.p-invalid[data-p]:not(:hover) {
+  border-color: var(--p-form-field-border-color);
+}
