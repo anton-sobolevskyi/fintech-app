@@ -47,3 +47,6 @@ Thumbs.db
 src/environments/
 .env
 config/env.prod.yaml
+
+# Firebase
+*-debug.log
