@@ -72,8 +72,6 @@ export class Register {
         action: async (form) => {
           const { confirmPassword, ...rest } = form().value();
 
-          console.log(rest);
-
           this.store.dispatch(AuthActions.register(rest));
 
           return {

@@ -99,8 +99,6 @@ export class Header {
       },
     ];
 
-    console.log(items);
-
     return items;
   });
 
