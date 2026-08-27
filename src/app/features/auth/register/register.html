@@ -5,9 +5,9 @@
         <label pLabel for="email">Full Name</label>
         <input
           pInputText
-          id="text"
+          id="full-name"
           [formField]="registerForm.displayName"
-          type="email"
+          type="text"
           class="w-full"
           autocomplete="email"
         />
@@ -59,7 +59,7 @@
         <label pLabel for="password">Confirm Password</label>
         <input
           pInputText
-          id="password"
+          id="current-password"
           [formField]="registerForm.confirmPassword"
           type="password"
           class="w-full"

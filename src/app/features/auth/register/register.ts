@@ -16,6 +16,7 @@ import { ButtonDirective } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { LabelModule } from 'primeng/label';
+import { RouterLink } from '@angular/router';
 
 @Component({
   imports: [
@@ -26,6 +27,7 @@ import { LabelModule } from 'primeng/label';
     CardModule,
     MessageModule,
     LabelModule,
+    RouterLink,
   ],
   selector: 'app-register',
   styleUrl: './register.css',
