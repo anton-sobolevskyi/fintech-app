@@ -29,6 +29,7 @@ export const authReducer = createReducer(
 
   on(AuthActions.logoutSuccess, () => ({
     ...initialAuthState,
+    sessionChecking: false,
   })),
 
   on(AuthActions.loadUserSuccess, (state, { user }) => ({
@@ -36,6 +37,7 @@ export const authReducer = createReducer(
     user,
     isAuthenticated: !!user,
     loading: false,
+    sessionChecking: false,
   })),
 
   on(AuthActions.clearError, (state) => ({
@@ -64,4 +66,20 @@ export const authReducer = createReducer(
     loading: false,
     error,
   })),
+
+  on(AuthActions.updatePreferencesSuccess, (state, { theme, language }) => {
+    if (!state.user) return state;
+
+    return {
+      ...state,
+      user: {
+        ...state.user,
+        preferences: {
+          ...state.user.preferences,
+          ...(theme && { theme }),
+          ...(language && { language }),
+        },
+      },
+    };
+  }),
 );

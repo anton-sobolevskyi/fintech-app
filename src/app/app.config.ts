@@ -7,6 +7,7 @@ import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { coreReducer } from './core/store';
 import { AuthEffects } from './core/store/auth/auth.effects';
+import { UiEffects } from './core/store/ui/ui.effects';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { environment } from '../environments/environment';
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(),
     provideStore(coreReducer),
-    provideEffects([AuthEffects]),
+    provideEffects([AuthEffects, UiEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
 
     providePrimeNG({
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
         options: {
+          darkModeSelector: '.dark',
           cssLayer: {
             name: 'primeng',
             order: 'theme, base, primeng',

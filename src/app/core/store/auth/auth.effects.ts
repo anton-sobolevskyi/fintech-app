@@ -2,14 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { AuthActions } from './auth.actions';
 import { AuthService } from '../../services/auth.service';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, map, of, switchMap, tap, withLatestFrom } from 'rxjs';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { selectCurrentUser } from './auth.selectors';
 
 @Injectable()
 export class AuthEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private store = inject(Store);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -73,7 +76,7 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.registerSuccess),
-        tap(() => this.router.navigate(['/dashboard'])),
+        tap(() => this.router.navigate(['/'])),
       ),
     { dispatch: false },
   );
@@ -84,6 +87,7 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.currentUser$().pipe(
           map((user) => AuthActions.loadUserSuccess({ user })),
+          tap(() => this.router.navigate(['/'])),
           catchError((error) => of(AuthActions.loadUserFailure({ error: error.message }))),
         ),
       ),
@@ -97,5 +101,22 @@ export class AuthEffects {
         tap(() => this.router.navigate(['/'])),
       ),
     { dispatch: false },
+  );
+
+  updatePreferences$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updatePreferences),
+      withLatestFrom(this.store.select(selectCurrentUser)),
+      switchMap(([{ theme, language }, user]) => {
+        if (!user) {
+          return of(AuthActions.updatePreferencesFailure({ error: 'No user' }));
+        }
+
+        return this.authService.updatePreferences(user.id, { theme, language }).pipe(
+          map(() => AuthActions.updatePreferencesSuccess({ theme, language })),
+          catchError((error) => of(AuthActions.updatePreferencesFailure({ error: error.message }))),
+        );
+      }),
+    ),
   );
 }

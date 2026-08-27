@@ -5,14 +5,14 @@ import { initialUiState } from './ui.models';
 export const uiReducer = createReducer(
   initialUiState,
 
-  on(UiActions.toggleTheme, (state) => ({
-    ...state,
-    theme: state.theme === 'light' ? 'dark' : 'light',
-  })),
-
   on(UiActions.setTheme, (state, { theme }) => ({
     ...state,
     theme,
+  })),
+
+  on(UiActions.setLanguage, (state, { language }) => ({
+    ...state,
+    language,
   })),
 
   on(UiActions.toggleSidebar, (state) => ({

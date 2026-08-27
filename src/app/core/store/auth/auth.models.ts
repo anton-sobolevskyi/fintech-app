@@ -5,6 +5,7 @@ export interface AuthState {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  sessionChecking: boolean;
 }
 
 export const initialAuthState: AuthState = {
@@ -12,4 +13,5 @@ export const initialAuthState: AuthState = {
   loading: false,
   error: null,
   isAuthenticated: false,
+  sessionChecking: true,
 };

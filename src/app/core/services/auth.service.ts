@@ -8,9 +8,9 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { Observable, from, map, switchMap, of } from 'rxjs';
-import { doc, getDoc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
-import { User } from '../models';
+import { Theme, User } from '../models';
 
 @Service()
 export class AuthService {
@@ -54,6 +54,19 @@ export class AuthService {
 
   logout(): Observable<void> {
     return from(signOut(this.auth));
+  }
+
+  updatePreferences(
+    uid: string,
+    prefs: { theme?: Theme; language?: string },
+  ): Observable<void> {
+    const userRef = doc(this.firestore, 'users', uid);
+
+    const updateData: any = {};
+    if (prefs.theme) updateData['preferences.theme'] = prefs.theme;
+    if (prefs.language) updateData['preferences.language'] = prefs.language;
+
+    return from(updateDoc(userRef, updateData));
   }
 
   authState$(): Observable<FirebaseUser | null> {

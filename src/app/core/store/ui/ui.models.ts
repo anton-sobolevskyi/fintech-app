@@ -1,11 +1,15 @@
+import { Language, Theme } from '../../models';
+
 export interface UiState {
-  theme: 'light' | 'dark';
+  theme: Theme;
+  language: Language;
   sidebarOpened: boolean;
   globalLoading: boolean;
 }
 
 export const initialUiState: UiState = {
-  theme: 'light',
+  theme: 'system',
+  language: 'en',
   sidebarOpened: true,
   globalLoading: false,
 };
