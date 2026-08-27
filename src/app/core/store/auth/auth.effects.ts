@@ -34,6 +34,20 @@ export class AuthEffects {
     ),
   );
 
+  register$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.register),
+      switchMap(({ email, password, displayName }) =>
+        this.authService.register(email, password, displayName).pipe(
+          map((user) => AuthActions.registerSuccess({ user })),
+          catchError((error) =>
+            of(AuthActions.registerFailure({ error: error.message || 'Registration failed' })),
+          ),
+        ),
+      ),
+    ),
+  );
+
   logout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logout),
@@ -51,6 +65,15 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthActions.logoutSuccess),
         tap(() => this.router.navigate(['/login'])),
+      ),
+    { dispatch: false },
+  );
+
+  registerSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.registerSuccess),
+        tap(() => this.router.navigate(['/dashboard'])),
       ),
     { dispatch: false },
   );

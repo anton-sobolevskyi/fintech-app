@@ -42,4 +42,26 @@ export const authReducer = createReducer(
     ...state,
     error: null,
   })),
+
+  on(AuthActions.register, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
+
+  on(AuthActions.registerSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    isAuthenticated: true,
+    loading: false,
+    error: null,
+  })),
+
+  on(AuthActions.registerFailure, (state, { error }) => ({
+    ...state,
+    user: null,
+    isAuthenticated: false,
+    loading: false,
+    error,
+  })),
 );

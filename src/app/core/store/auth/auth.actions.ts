@@ -9,16 +9,20 @@ export const AuthActions = createActionGroup({
     'Login Success': props<{ user: User }>(),
     'Login Failure': props<{ error: string }>(),
 
+    // Register
+    Register: props<{ email: string; password: string; displayName: string }>(),
+    'Register Success': props<{ user: User }>(),
+    'Register Failure': props<{ error: string }>(),
+
     // Logout
     Logout: emptyProps(),
     'Logout Success': emptyProps(),
 
-    // Load current user (from Firebase Auth state)
+    // Load User
     'Load User': emptyProps(),
     'Load User Success': props<{ user: User | null }>(),
     'Load User Failure': props<{ error: string }>(),
 
-    // Clear error
     'Clear Error': emptyProps(),
   },
 });

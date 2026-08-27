@@ -1,0 +1,93 @@
+<div class="flex justify-center min-h-screen items-center">
+  <p-card class="max-w-sm w-full" header="Create Account" subheader="Join BankDataHub">
+    <form id="register-form" [formRoot]="registerForm" class="space-y-2 my-4">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="email">Full Name</label>
+        <input
+          pInputText
+          id="text"
+          [formField]="registerForm.displayName"
+          type="email"
+          class="w-full"
+          autocomplete="email"
+        />
+
+        @if (registerForm.displayName().touched() && registerForm.displayName().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ registerForm.displayName().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="email">Email</label>
+        <input
+          pInputText
+          id="email"
+          [formField]="registerForm.email"
+          type="email"
+          class="w-full"
+          autocomplete="email"
+        />
+
+        @if (registerForm.email().touched() && registerForm.email().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ registerForm.email().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="password">Password</label>
+        <input
+          pInputText
+          id="password"
+          [formField]="registerForm.password"
+          type="password"
+          class="w-full"
+          autocomplete="current-password"
+        />
+
+        @if (registerForm.password().touched() && registerForm.password().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ registerForm.password().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="password">Confirm Password</label>
+        <input
+          pInputText
+          id="password"
+          [formField]="registerForm.confirmPassword"
+          type="password"
+          class="w-full"
+          autocomplete="current-password"
+        />
+
+        @if (registerForm.confirmPassword().touched() && registerForm.confirmPassword().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ registerForm.confirmPassword().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      @if (error()) {
+        <p-message severity="error" styleClass="w-full">{{ error() }}</p-message>
+      }
+    </form>
+
+    <ng-template #footer>
+      <div class="flex flex-col gap-4">
+        <button type="submit" pButton class="w-full" form="register-form" [disabled]="loading()">
+          Create Account
+        </button>
+        <div class="mt-2 text-center text-surface-500 text-sm">
+          Already have an account?
+          <a routerLink="/login" type="button" pButton variant="link" class="p-0">Sign in</a>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

@@ -5,9 +5,10 @@ import {
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
+  updateProfile,
 } from 'firebase/auth';
 import { Observable, from, map, switchMap, of } from 'rxjs';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
 import { User } from '../models';
 
@@ -22,9 +23,32 @@ export class AuthService {
     );
   }
 
-  register(email: string, password: string): Observable<FirebaseUser> {
+  register(email: string, password: string, displayName: string): Observable<User> {
     return from(createUserWithEmailAndPassword(this.auth, email, password)).pipe(
-      map((credential) => credential.user),
+      switchMap(async (credential) => {
+        const firebaseUser = credential.user;
+        await updateProfile(firebaseUser, { displayName });
+
+        // 2. Create user profile in Firestore
+        const userProfile: Omit<User, 'id'> = {
+          email: firebaseUser.email!,
+          displayName,
+          role: 'viewer', // default role
+          createdAt: serverTimestamp() as Timestamp,
+          preferences: {
+            theme: 'light',
+            language: 'uk',
+          },
+        };
+
+        await setDoc(doc(this.firestore, 'users', firebaseUser.uid), userProfile);
+
+        // 3. Return the full user object
+        return {
+          id: firebaseUser.uid,
+          ...userProfile,
+        } satisfies User;
+      }),
     );
   }
 
