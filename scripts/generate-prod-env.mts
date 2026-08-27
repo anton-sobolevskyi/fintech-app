@@ -1,6 +1,9 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { dump } from 'js-yaml';
+import dotenv from 'dotenv';
 import { EnvConfig } from '../types/env';
+
+dotenv.config();
 
 function requireEnv(key: string): string {
   const value = process.env[key];
