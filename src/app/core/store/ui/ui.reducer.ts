@@ -15,16 +15,6 @@ export const uiReducer = createReducer(
     language,
   })),
 
-  on(UiActions.toggleSidebar, (state) => ({
-    ...state,
-    sidebarOpened: !state.sidebarOpened,
-  })),
-
-  on(UiActions.setSidebarOpened, (state, { opened }) => ({
-    ...state,
-    sidebarOpened: opened,
-  })),
-
   on(UiActions.setGlobalLoading, (state, { loading }) => ({
     ...state,
     globalLoading: loading,

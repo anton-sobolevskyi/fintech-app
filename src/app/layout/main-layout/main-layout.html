@@ -1,9 +1,69 @@
-<div class="min-h-screen flex flex-col">
-  <app-header />
-
-  <div class="flex flex-1 overflow-hidden">
-    <main class="flex-1 overflow-auto p-4 md:p-6">
-      <router-outlet />
-    </main>
-  </div>
+<div class="overflow-hidden min-h-screen">
+  <p-sidebar-layout class="flex-1">
+    @if (isMobile() && open()) {
+      <p-sidebar-backdrop class="absolute!" />
+    }
+    <p-sidebar
+      id="layout"
+      [collapsible]="isMobile() ? 'offcanvas' : 'icon'"
+      [overlay]="isMobile()"
+      [(open)]="open"
+    >
+      <p-sidebar-spacer />
+      <p-sidebar-aside>
+        <p-sidebar-panel>
+          <p-sidebar-header>
+            <p-sidebar-menu>
+              <p-sidebar-menu-item>
+                <button class="p-1! inline-flex items-center gap-4">
+                  <div
+                    class="flex size-6 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-violet-500 to-indigo-600 text-white text-xs font-bold leading-none"
+                  >
+                    B
+                  </div>
+                  <span class="font-semibold text-sm">BankDataHub</span>
+                </button>
+              </p-sidebar-menu-item>
+            </p-sidebar-menu>
+          </p-sidebar-header>
+          <p-sidebar-content>
+            <app-sidebar />
+          </p-sidebar-content>
+          @if (user(); as currentUser) {
+            <p-sidebar-footer>
+              <p-sidebar-menu>
+                <p-sidebar-menu-item>
+                  <button pSidebarMenuButton class="p-1!" (click)="userMenu.toggle($event)">
+                    <p-avatar
+                      [label]="
+                        currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase
+                      "
+                      shape="circle"
+                      class="size-6 shrink-0 text-xs"
+                    />
+                    <span>{{ currentUser?.displayName || currentUser?.email }}</span>
+                    <svg data-p-icon="chevron-down" class="ml-auto"></svg>
+                  </button>
+                  <p-menu #userMenu [model]="userItems()" [popup]="true" appendTo="body" />
+                </p-sidebar-menu-item>
+              </p-sidebar-menu>
+            </p-sidebar-footer>
+          }
+          <button pSidebarRail></button>
+        </p-sidebar-panel>
+      </p-sidebar-aside>
+    </p-sidebar>
+    <p-sidebar-main>
+      <header
+        class="flex h-12 items-center gap-2 border-b border-surface-200 dark:border-surface-700 px-4"
+      >
+        <button pButton pSidebarTrigger target="layout" severity="secondary" text size="small">
+          <svg data-p-icon="sidebar"></svg>
+        </button>
+      </header>
+      <div class="flex-1 p-4 flex flex-col gap-4">
+        <router-outlet />
+      </div>
+    </p-sidebar-main>
+  </p-sidebar-layout>
 </div>

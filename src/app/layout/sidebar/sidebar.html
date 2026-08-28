@@ -1,0 +1,15 @@
+<p-sidebar-group>
+  <p-sidebar-group-label>Navigation</p-sidebar-group-label>
+  <p-sidebar-group-content>
+    <p-sidebar-menu>
+      @for (item of navItems; track $index) {
+        <p-sidebar-menu-item>
+          <a [routerLink]="item.link" pSidebarMenuButton [isActive]="activeNivItem() === item">
+            <svg [pIcon]="item.icon"></svg>
+            <span>{{ item.label }}</span>
+          </a>
+        </p-sidebar-menu-item>
+      }
+    </p-sidebar-menu>
+  </p-sidebar-group-content>
+</p-sidebar-group>
