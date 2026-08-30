@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 
 import { SidebarModule } from 'primeng/sidebar';
 import { PIcon } from '@primeicons/angular';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 type NavItem = {
   label: string;
@@ -11,7 +11,7 @@ type NavItem = {
 };
 
 @Component({
-  imports: [SidebarModule, RouterLink, PIcon],
+  imports: [SidebarModule, RouterLink, PIcon, RouterLinkActive],
   selector: 'app-sidebar',
   styleUrl: './sidebar.css',
   templateUrl: './sidebar.html',
