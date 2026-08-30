@@ -1,0 +1,94 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Data Sources</h1>
+      <p class="text-surface-500 mt-1 mb-0">Private & Public cloud integrations status</p>
+    </div>
+    <button pButton severity="secondary" [outlined]="true" (onClick)="store.loadSources()">
+      <svg pIcon="refresh"></svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <p-card>
+      <div class="text-surface-500 text-sm">Healthy</div>
+      <div class="text-2xl font-bold text-emerald-500 mt-1">{{ store.healthyCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Degraded</div>
+      <div class="text-2xl font-bold text-amber-500 mt-1">{{ store.degradedCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Down</div>
+      <div class="text-2xl font-bold text-red-500 mt-1">{{ store.downCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Private</div>
+      <div class="text-2xl font-bold mt-1">{{ store.privateCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Public</div>
+      <div class="text-2xl font-bold mt-1">{{ store.publicCount() }}</div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      [value]="store.sources()"
+      [loading]="store.loading()"
+      [rowHover]="true"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Cloud</th>
+          <th>Status</th>
+          <th>Latency</th>
+          <th>Error Rate</th>
+          <th>Region</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-source>
+        <tr>
+          <td>
+            <div class="font-medium">{{ source.name }}</div>
+            @if (source.description) {
+              <div class="text-sm text-surface-500">{{ source.description }}</div>
+            }
+          </td>
+          <td>
+            <p-tag
+              [value]="source.cloudType"
+              [severity]="getCloudSeverity(source.cloudType)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td>
+            <p-tag
+              [value]="source.status"
+              [severity]="getStatusSeverity(source.status)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td>{{ source.latencyMs }} ms</td>
+          <td>
+            <div class="flex items-center gap-2">
+              <span>{{ source.errorRate }}%</span>
+              <p-progressbar [value]="source.errorRate" [showValue]="false" styleClass="w-20 h-2" />
+            </div>
+          </td>
+          <td>{{ source.region }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center py-8 text-surface-500">No data sources found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

@@ -33,6 +33,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/transactions/transactions/transactions').then((m) => m.Transactions),
       },
+      {
+        path: 'sources',
+        loadComponent: () =>
+          import('./features/data-sources/data-sources/data-sources').then((m) => m.DataSources),
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },
