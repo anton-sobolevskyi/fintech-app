@@ -16,7 +16,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideClientHydration(),
     provideStore(coreReducer),
     provideEffects([AuthEffects, UiEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
