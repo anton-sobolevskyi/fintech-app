@@ -28,6 +28,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/accounts/accounts/accounts').then((m) => m.Accounts),
       },
+      {
+        path: 'transactions',
+        loadComponent: () =>
+          import('./features/transactions/transactions/transactions').then((m) => m.Transactions),
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },

@@ -1,0 +1,117 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Transactions</h1>
+      <p class="text-surface-500 mt-1 mb-0">History of all your payments and transfers</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button pButton label="Export" severity="secondary" [outlined]="true" iconOnly>
+        <svg pIcon="download"></svg>
+      </button>
+      <button type="button" pButton label="New Transaction" iconOnly>
+        <svg pIcon="plus"></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <p-card>
+      <div class="text-surface-500 text-sm">Income</div>
+      <div class="text-2xl font-bold text-emerald-500 mt-1">
+        {{ formatCurrency(store.totalIncome()) }}
+      </div>
+    </p-card>
+
+    <p-card>
+      <div class="text-surface-500 text-sm">Expenses</div>
+      <div class="text-2xl font-bold text-red-500 mt-1">
+        {{ formatCurrency(store.totalExpense()) }}
+      </div>
+    </p-card>
+
+    <p-card>
+      <div class="text-surface-500 text-sm">Shown Transactions</div>
+      <div class="text-2xl font-bold mt-1">
+        {{ store.count() }}
+      </div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <p-table
+      [value]="store.transactions()"
+      [loading]="store.loading()"
+      styleClass="p-datatable-sm"
+      [rowHover]="true"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th class="text-right">Amount</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-tx>
+        <tr>
+          <td class="whitespace-nowrap">
+            {{ formatDate(tx.createdAt) }}
+          </td>
+          <td>
+            <div class="font-medium">{{ tx.description }}</div>
+            @if (tx.counterpartyName) {
+              <div class="text-sm text-surface-500">{{ tx.counterpartyName }}</div>
+            }
+          </td>
+          <td>
+            <p-tag
+              [value]="tx.type"
+              [severity]="getTypeSeverity(tx.type)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td>
+            <p-tag
+              [value]="tx.status"
+              [severity]="getStatusSeverity(tx.status)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td
+            class="text-right font-semibold whitespace-nowrap"
+            [class.text-emerald-500]="tx.type === 'credit'"
+            [class.text-red-500]="tx.type === 'debit' || tx.type === 'fee'"
+          >
+            {{ tx.type === 'credit' ? '+' : '-' }}
+            {{ formatCurrency(tx.amount, tx.currency) }}
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-8 text-surface-500">No transactions found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    @if (store.hasMore()) {
+      <div class="flex justify-center mt-4">
+        <button
+          pButton
+          label="Load more"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="store.loading()"
+          (onClick)="loadMore()"
+          iconOnly
+        >
+          <svg pIcon="chevron-down"></svg>
+        </button>
+      </div>
+    }
+  </p-card>
+</div>

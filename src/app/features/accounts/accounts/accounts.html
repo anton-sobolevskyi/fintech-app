@@ -5,7 +5,9 @@
       <p class="text-surface-500 mt-1 mb-0">Manage your bank accounts</p>
     </div>
 
-    <button pButton label="Add Account" icon="pi pi-plus"></button>
+    <button pButton label="Add Account" iconOnly>
+      <svg pIcon="plus"></svg>
+    </button>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -89,20 +91,24 @@
             <div class="flex gap-1 justify-end">
               <button
                 pButton
-                icon="pi pi-eye"
                 [rounded]="true"
                 [text]="true"
                 severity="secondary"
                 pTooltip="View details"
-              ></button>
+                iconOnly
+              >
+                <svg pIcon="eye"></svg>
+              </button>
               <button
                 pButton
-                icon="pi pi-pencil"
                 [rounded]="true"
                 [text]="true"
                 severity="secondary"
                 pTooltip="Edit"
-              ></button>
+                iconOnly
+              >
+                <svg pIcon="pencil"></svg>
+              </button>
             </div>
           </td>
         </tr>

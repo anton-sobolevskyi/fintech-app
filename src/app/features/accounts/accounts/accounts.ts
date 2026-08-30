@@ -5,9 +5,10 @@ import { AccountsStore } from '../accounts.store';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
+import { PIcon } from '@primeicons/angular';
 
 @Component({
-  imports: [ButtonModule, CardModule, SkeletonModule, TagModule, TableModule],
+  imports: [ButtonModule, CardModule, SkeletonModule, TagModule, TableModule, PIcon],
   selector: 'app-accounts',
   styleUrl: './accounts.css',
   templateUrl: './accounts.html',
