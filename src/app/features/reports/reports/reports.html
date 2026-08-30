@@ -1,0 +1,66 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Reports</h1>
+      <p class="text-surface-500 mt-1 mb-0">Generated and scheduled reports</p>
+    </div>
+    <button pButton>
+      <svg pIcon="plus"></svg>
+      New Report
+    </button>
+  </div>
+
+  <p-card>
+    <p-table
+      [value]="store.reports()"
+      [loading]="store.loading()"
+      [rowHover]="true"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th style="width: 10rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-report>
+        <tr>
+          <td class="font-medium">{{ report.title }}</td>
+          <td class="capitalize">{{ report.type }}</td>
+          <td>
+            <p-tag
+              [value]="report.status"
+              [severity]="getStatusSeverity(report.status)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td>{{ formatDate(report.createdAt) }}</td>
+          <td>
+            <div class="flex gap-1 justify-end">
+              @if (report.status === 'ready' && report.downloadUrl) {
+                <button pButton [rounded]="true" [text]="true" severity="secondary" iconOnly>
+                  <svg pIcon="download"></svg>
+                </button>
+              }
+              <button pButton [rounded]="true" [text]="true" severity="secondary" iconOnly>
+                <svg pIcon="eye"></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-8 text-surface-500">
+            No reports yet. Create your first report.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
