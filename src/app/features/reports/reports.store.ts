@@ -1,48 +1,85 @@
-import { inject } from '@angular/core';
-import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
+import { computed, inject } from '@angular/core';
+import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, of, delay, map } from 'rxjs';
+import { pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
 import { Timestamp } from 'firebase/firestore';
-import { ReportType, Report, Currency, ID } from '@core/models';
-import { ReportService } from '@core/services/report.service';
-import { selectCurrentUser } from '@core/store/auth/auth.selectors';
+import { Report, ReportType, ReportStatus } from '../../core/models';
+import { ReportService } from '../../core/services/report.service';
+import { selectCurrentUser } from '../../core/store/auth/auth.selectors';
 
-interface ReportsState {
-  reports: Report[];
-  loading: boolean;
-  saving: boolean;
-  error: string | null;
+export interface ReportFilters {
+  search: string;
+  type: ReportType | null;
+  status: ReportStatus | null;
 }
-
-const initialState: ReportsState = {
-  reports: [],
-  loading: false,
-  saving: false,
-  error: null,
-};
 
 export interface CreateReportPayload {
   title: string;
   type: ReportType;
   dateFrom: string;
   dateTo: string;
-  accountIds: ID[];
-  currencies: Currency[];
+  accountIds: string[];
+  currencies: string[];
 }
+
+interface ReportsState {
+  reports: Report[];
+  loading: boolean;
+  saving: boolean;
+  error: string | null;
+  filters: ReportFilters;
+}
+
+const initialFilters: ReportFilters = {
+  search: '',
+  type: null,
+  status: null,
+};
+
+const initialState: ReportsState = {
+  reports: [],
+  loading: false,
+  saving: false,
+  error: null,
+  filters: initialFilters,
+};
 
 export const ReportsStore = signalStore(
   withState(initialState),
 
+  withComputed(({ reports, filters }) => ({
+    readyCount: computed(() => reports().filter((r) => r.status === 'ready').length),
+    generatingCount: computed(() => reports().filter((r) => r.status === 'generating').length),
+    failedCount: computed(() => reports().filter((r) => r.status === 'failed').length),
+
+    filteredReports: computed(() => {
+      const search = filters().search.toLowerCase().trim();
+      if (!search) return reports();
+      return reports().filter(
+        (r) => r.title.toLowerCase().includes(search) || r.type.toLowerCase().includes(search),
+      );
+    }),
+  })),
+
   withMethods((store, reportService = inject(ReportService), globalStore = inject(Store)) => ({
+    setFilter: (partial: Partial<ReportFilters>) => {
+      patchState(store, { filters: { ...store.filters(), ...partial } });
+    },
+
+    resetFilters: () => {
+      patchState(store, { filters: { ...initialFilters } });
+    },
+
     loadReports: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { loading: true, error: null })),
         switchMap(() => {
           const user = globalStore.selectSignal(selectCurrentUser)();
           if (!user) return of([]);
-          return reportService.getByUserId(user.id);
+          const { type, status } = store.filters();
+          return reportService.queryByUser(user.id, { type, status });
         }),
         tapResponse({
           next: (reports) => patchState(store, { reports, loading: false }),
@@ -65,31 +102,18 @@ export const ReportsStore = signalStore(
           const dateFrom = Timestamp.fromDate(new Date(payload.dateFrom));
           const dateTo = Timestamp.fromDate(new Date(payload.dateTo + 'T23:59:59'));
 
-          const data: Omit<Report, 'id' | 'createdAt'> = {
+          return reportService.create({
             userId: user.id,
             title: payload.title,
             type: payload.type,
-            status: 'generating' as const,
+            status: 'generating',
             filters: {
               dateFrom,
               dateTo,
               accountIds: payload.accountIds?.length ? payload.accountIds : undefined,
-              currencies: payload.currencies?.length ? payload.currencies : undefined,
+              currencies: payload.currencies?.length ? (payload.currencies as any) : undefined,
             },
-          };
-
-          return reportService.create(data).pipe(
-            delay(1500),
-            switchMap((id) =>
-              reportService
-                .update(id, {
-                  status: 'ready',
-                  // placeholder; later replace with Storage URL
-                  downloadUrl: `https://example.com/reports/${id}.pdf`,
-                })
-                .pipe(map(() => id)),
-            ),
-          );
+          } as any);
         }),
         tapResponse({
           next: () => patchState(store, { saving: false }),
@@ -116,7 +140,5 @@ export const ReportsStore = signalStore(
         }),
       ),
     ),
-
-    clearError: () => patchState(store, { error: null }),
   })),
 );

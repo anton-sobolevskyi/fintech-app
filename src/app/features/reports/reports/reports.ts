@@ -1,35 +1,60 @@
 import { Component, inject, signal } from '@angular/core';
-import { CreateReportPayload, ReportsStore } from '../reports.store';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
+import { FormsModule } from '@angular/forms';
+import { ReportsStore, CreateReportPayload } from '../reports.store';
+import { ReportFormDialog } from '../report-form-dialog/report-form-dialog';
+import { Report, ReportType, ReportStatus } from '../../../core/models';
+
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { PIcon } from '@primeicons/angular';
-import { ConfirmationService } from 'primeng/api';
-import { Report } from '@core/models';
+import { TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ReportFormDialog } from '../report-form-dialog/report-form-dialog';
+import { ConfirmationService } from 'primeng/api';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PIcon } from '@primeicons/angular';
 
 @Component({
+  selector: 'app-reports',
+  standalone: true,
   imports: [
-    ButtonModule,
-    TagModule,
+    FormsModule,
     CardModule,
     TableModule,
+    TagModule,
+    ButtonModule,
+    SelectModule,
+    InputTextModule,
+    ConfirmDialogModule,
+    ProgressSpinnerModule,
     PIcon,
     ReportFormDialog,
-    ConfirmDialogModule,
   ],
-  selector: 'app-reports',
-  styleUrl: './reports.css',
-  templateUrl: './reports.html',
   providers: [ReportsStore, ConfirmationService],
+  templateUrl: './reports.html',
+  styleUrl: './reports.css',
 })
 export class Reports {
   readonly store = inject(ReportsStore);
   private confirmation = inject(ConfirmationService);
 
   showDialog = signal(false);
+
+  typeOptions = [
+    { label: 'All types', value: null },
+    { label: 'Balance', value: 'balance' },
+    { label: 'Transactions', value: 'transactions' },
+    { label: 'Performance', value: 'performance' },
+    { label: 'Custom', value: 'custom' },
+  ];
+
+  statusOptions = [
+    { label: 'All statuses', value: null },
+    { label: 'Ready', value: 'ready' },
+    { label: 'Generating', value: 'generating' },
+    { label: 'Failed', value: 'failed' },
+  ];
 
   ngOnInit(): void {
     this.store.loadReports();
@@ -44,18 +69,38 @@ export class Reports {
     this.showDialog.set(false);
   }
 
-  onDelete(report: Report): void {
-    this.confirmation.confirm({
-      message: `Delete report "${report.title}"?`,
-      header: 'Confirm',
-      accept: () => this.store.deleteReport(report.id),
-    });
+  onTypeFilter(type: ReportType | null): void {
+    this.store.setFilter({ type });
+    this.store.loadReports();
+  }
+
+  onStatusFilter(status: ReportStatus | null): void {
+    this.store.setFilter({ status });
+    this.store.loadReports();
+  }
+
+  onSearch(search: string): void {
+    this.store.setFilter({ search });
+  }
+
+  clearFilters(): void {
+    this.store.resetFilters();
+    this.store.loadReports();
   }
 
   onDownload(report: Report): void {
     if (report.downloadUrl) {
       window.open(report.downloadUrl, '_blank');
     }
+  }
+
+  onDelete(report: Report): void {
+    this.confirmation.confirm({
+      message: `Delete report "${report.title}"?`,
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => this.store.deleteReport(report.id),
+    });
   }
 
   getStatusSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' {

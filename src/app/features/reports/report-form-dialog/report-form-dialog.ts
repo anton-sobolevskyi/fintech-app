@@ -44,7 +44,6 @@ export class ReportFormDialog implements OnInit {
 
   visible = input(false);
   saving = input(false);
-
   visibleChange = output<boolean>();
   save = output<CreateReportPayload>();
 
@@ -66,7 +65,7 @@ export class ReportFormDialog implements OnInit {
   private today = new Date().toISOString().slice(0, 10);
   private monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-  reportModel = signal<ReportFormModel>({
+  model = signal<ReportFormModel>({
     title: '',
     type: 'transactions',
     dateFrom: this.monthAgo,
@@ -76,7 +75,7 @@ export class ReportFormDialog implements OnInit {
   });
 
   reportForm = form(
-    this.reportModel,
+    this.model,
     (p) => {
       required(p.title, { message: 'Title is required' });
       minLength(p.title, 2, { message: 'Minimum 2 characters' });
@@ -88,7 +87,7 @@ export class ReportFormDialog implements OnInit {
       submission: {
         action: async (f) => {
           if (f().invalid()) return;
-          this.save.emit(f().value() as CreateReportPayload);
+          this.save.emit(f().value());
         },
       },
     },
@@ -96,11 +95,8 @@ export class ReportFormDialog implements OnInit {
 
   ngOnInit(): void {
     const user = this.globalStore.selectSignal(selectCurrentUser)();
-    if (user) {
-      this.accountService.getByUserId(user.id).subscribe((list) => {
-        this.accounts.set(list);
-      });
-    }
+    if (!user) return;
+    this.accountService.getByUserId(user.id).subscribe((list) => this.accounts.set(list));
   }
 
   accountOptions = () =>

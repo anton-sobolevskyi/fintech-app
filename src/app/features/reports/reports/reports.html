@@ -1,18 +1,66 @@
 <div class="space-y-6">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Reports</h1>
+      <h1 class="text-2xl font-bold m-0">Reports</h1>
       <p class="text-surface-500 mt-1 mb-0">Generated and scheduled reports</p>
     </div>
-    <button type="button" pButton (click)="openCreate()">
+    <button pButton type="button" (click)="openCreate()">
       <svg pIcon="plus"></svg>
       New Report
     </button>
   </div>
 
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <p-card>
+      <div class="text-surface-500 text-sm">Ready</div>
+      <div class="text-2xl font-bold text-emerald-500 mt-1">{{ store.readyCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Generating</div>
+      <div class="text-2xl font-bold text-amber-500 mt-1">{{ store.generatingCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Failed</div>
+      <div class="text-2xl font-bold text-red-500 mt-1">{{ store.failedCount() }}</div>
+    </p-card>
+  </div>
+
+  <!-- Filters -->
+  <p-card>
+    <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
+      <input
+        pInputText
+        class="flex-1"
+        placeholder="Search title..."
+        [ngModel]="store.filters().search"
+        (ngModelChange)="onSearch($event)"
+      />
+      <p-select
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full lg:w-44"
+        [ngModel]="store.filters().type"
+        (ngModelChange)="onTypeFilter($event)"
+      />
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full lg:w-44"
+        [ngModel]="store.filters().status"
+        (ngModelChange)="onStatusFilter($event)"
+      />
+      <button pButton severity="secondary" [outlined]="true" type="button" (click)="clearFilters()">
+        Clear
+      </button>
+    </div>
+  </p-card>
+
   <p-card>
     <p-table
-      [value]="store.reports()"
+      [value]="store.filteredReports()"
       [loading]="store.loading()"
       [rowHover]="true"
       styleClass="p-datatable-sm"
@@ -23,7 +71,7 @@
           <th>Type</th>
           <th>Status</th>
           <th>Created</th>
-          <th style="width: 10rem"></th>
+          <th style="width: 9rem"></th>
         </tr>
       </ng-template>
 
@@ -32,11 +80,16 @@
           <td class="font-medium">{{ report.title }}</td>
           <td class="capitalize">{{ report.type }}</td>
           <td>
-            <p-tag
-              [value]="report.status"
-              [severity]="getStatusSeverity(report.status)"
-              styleClass="capitalize"
-            />
+            <div class="flex items-center gap-2">
+              <p-tag
+                [value]="report.status"
+                [severity]="getStatusSeverity(report.status)"
+                styleClass="capitalize"
+              />
+              @if (report.status === 'generating') {
+                <i class="pi pi-spin pi-spinner text-amber-500"></i>
+              }
+            </div>
           </td>
           <td>{{ formatDate(report.createdAt) }}</td>
           <td>
@@ -47,6 +100,7 @@
                   [rounded]="true"
                   [text]="true"
                   severity="secondary"
+                  type="button"
                   (click)="onDownload(report)"
                 >
                   <svg pIcon="download"></svg>
@@ -57,6 +111,7 @@
                 [rounded]="true"
                 [text]="true"
                 severity="danger"
+                type="button"
                 (click)="onDelete(report)"
               >
                 <svg pIcon="trash"></svg>
@@ -75,13 +130,13 @@
       </ng-template>
     </p-table>
   </p-card>
+
+  <app-report-form-dialog
+    [visible]="showDialog()"
+    [saving]="store.saving()"
+    (visibleChange)="showDialog.set($event)"
+    (save)="onSave($event)"
+  />
+
+  <p-confirmdialog />
 </div>
-
-<app-report-form-dialog
-  [visible]="showDialog()"
-  [saving]="store.saving()"
-  (visibleChange)="showDialog.set($event)"
-  (save)="onSave($event)"
-/>
-
-<p-confirmdialog />
