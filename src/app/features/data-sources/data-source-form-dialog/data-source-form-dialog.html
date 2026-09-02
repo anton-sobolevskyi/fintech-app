@@ -1,0 +1,100 @@
+<p-dialog
+  [header]="source() ? 'Edit Data Source' : 'New Data Source'"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [draggable]="false"
+>
+  <form id="source-form" [formRoot]="sourceForm" class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-2">
+      <label pLabel for="name">Name</label>
+      <input pInputText id="name" [formField]="sourceForm.name" class="w-full" />
+      @if (sourceForm.name().touched() && sourceForm.name().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ sourceForm.name().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="cloudType">Cloud</label>
+        <p-select
+          inputId="cloudType"
+          [options]="cloudOptions"
+          optionLabel="label"
+          optionValue="value"
+          [formField]="sourceForm.cloudType"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label pLabel for="status">Status</label>
+        <p-select
+          inputId="status"
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [formField]="sourceForm.status"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="latencyMs">Latency (ms)</label>
+        <input
+          pInputText
+          id="latencyMs"
+          type="number"
+          [formField]="sourceForm.latencyMs"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label pLabel for="errorRate">Error rate (%)</label>
+        <input
+          pInputText
+          id="errorRate"
+          type="number"
+          step="0.1"
+          [formField]="sourceForm.errorRate"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="region">Region</label>
+      <p-select
+        inputId="region"
+        [options]="regionOptions"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="sourceForm.region"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="description">Description (optional)</label>
+      <input pInputText id="description" [formField]="sourceForm.description" class="w-full" />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <button type="button" pButton severity="secondary" [text]="true" (click)="onHide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      pButton
+      form="source-form"
+      [disabled]="saving() || sourceForm().invalid()"
+    >
+      {{ source() ? 'Save' : 'Create' }}
+    </button>
+  </ng-template>
+</p-dialog>
