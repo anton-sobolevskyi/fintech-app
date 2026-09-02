@@ -1,11 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
+import { ID, Locale } from './common.model';
 
 export type UserRole = 'admin' | 'manager' | 'analyst' | 'viewer';
 export type Theme = 'system' | 'light' | 'dark';
-export type Language = 'en' | 'uk';
 
 export interface User {
-  id: string;
+  id: ID;
   email: string;
   displayName: string;
   role: UserRole;
@@ -15,6 +15,6 @@ export interface User {
   lastLoginAt?: Timestamp;
   preferences: {
     theme: Theme;
-    language: Language;
+    language: Locale;
   };
 }

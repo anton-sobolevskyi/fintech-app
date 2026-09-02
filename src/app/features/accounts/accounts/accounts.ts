@@ -6,6 +6,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { PIcon } from '@primeicons/angular';
+import { AccountStatus } from '@core/models/account.model';
+
+type AccountStatusSeverity = 'success' | 'warn' | 'danger' | 'info';
 
 @Component({
   imports: [ButtonModule, CardModule, SkeletonModule, TagModule, TableModule, PIcon],
@@ -21,7 +24,7 @@ export class Accounts {
     this.store.loadAccounts();
   }
 
-  getStatusSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' {
+  getStatusSeverity(status: AccountStatus): AccountStatusSeverity {
     switch (status) {
       case 'active':
         return 'success';

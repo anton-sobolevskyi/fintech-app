@@ -1,8 +1,8 @@
-import { Language, Theme } from '../../models';
+import { Locale, Theme } from "@core/models";
 
 export interface UiState {
   theme: Theme;
-  language: Language;
+  language: Locale;
   globalLoading: boolean;
 }
 

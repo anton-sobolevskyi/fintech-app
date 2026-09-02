@@ -1,12 +1,12 @@
 import { Timestamp } from 'firebase/firestore';
+import { Currency, ID } from './common.model';
 
 export type AccountType = 'checking' | 'savings' | 'investment' | 'credit' | 'loan';
 export type AccountStatus = 'active' | 'frozen' | 'closed';
-export type Currency = 'UAH' | 'USD' | 'EUR';
 
 export interface Account {
-  id: string;
-  userId: string;
+  id: ID;
+  userId: ID;
   name: string;
   type: AccountType;
   currency: Currency;

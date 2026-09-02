@@ -22,8 +22,8 @@ import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { AuthActions } from '../../core/store/auth/auth.actions';
 import { selectLanguage, selectTheme } from '../../core/store/ui/ui.selectors';
-import { Language, Theme } from '../../core/models';
 import { UiActions } from '../../core/store/ui/ui.actions';
+import { Locale, Theme } from '@core/models';
 
 @Component({
   imports: [
@@ -147,7 +147,7 @@ export class MainLayout implements OnInit, OnDestroy {
     this.store.dispatch(UiActions.setTheme({ theme }));
   }
 
-  setLanguage(language: Language): void {
+  setLanguage(language: Locale): void {
     this.store.dispatch(UiActions.setLanguage({ language }));
   }
 }

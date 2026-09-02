@@ -1,10 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
+import { ID } from './common.model';
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success';
 
 export interface Notification {
-  id: string;
-  userId: string;
+  id: ID;
+  userId: ID;
   title: string;
   message: string;
   type: NotificationType;

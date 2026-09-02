@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { Language, Theme, User } from '../../models';
+import { Locale, Theme, User } from '@core/models';
 
 export const AuthActions = createActionGroup({
   source: 'Auth',
@@ -25,8 +25,8 @@ export const AuthActions = createActionGroup({
 
     'Clear Error': emptyProps(),
 
-    'Update Preferences': props<{ theme?: Theme; language?: Language }>(),
-    'Update Preferences Success': props<{ theme?: Theme; language?: Language }>(),
+    'Update Preferences': props<{ theme?: Theme; language?: Locale }>(),
+    'Update Preferences Success': props<{ theme?: Theme; language?: Locale }>(),
     'Update Preferences Failure': props<{ error: string }>(),
   },
 });

@@ -1,18 +1,19 @@
 import { Timestamp } from 'firebase/firestore';
+import { Currency, ID } from './common.model';
 
 export type ReportType = 'balance' | 'transactions' | 'performance' | 'custom';
 export type ReportStatus = 'generating' | 'ready' | 'failed';
 
 export interface Report {
-  id: string;
-  userId: string;
+  id: ID;
+  userId: ID;
   title: string;
   type: ReportType;
   filters: {
     dateFrom: Timestamp;
     dateTo: Timestamp;
-    accountIds?: string[];
-    currencies?: string[];
+    accountIds?: ID[];
+    currencies?: Currency[];
   };
   createdAt?: Timestamp;
   status: ReportStatus;
