@@ -1,23 +1,87 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, ElementRef, inject, viewChild, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { DashboardStore } from '../dashboard.store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { PIcon } from '@primeicons/angular';
-import { CommonModule } from '@angular/common';
 import { SkeletonModule } from 'primeng/skeleton';
+import { PIcon } from '@primeicons/angular';
+
+Chart.register(...registerables);
 
 @Component({
-  imports: [CommonModule, ButtonModule, CardModule, PIcon, SkeletonModule],
+  imports: [CommonModule, RouterLink, ButtonModule, CardModule, SkeletonModule, PIcon],
   selector: 'app-dashboard',
   styleUrl: './dashboard.css',
   templateUrl: './dashboard.html',
   providers: [DashboardStore],
 })
-export class Dashboard {
+export class Dashboard implements OnDestroy {
   readonly store = inject(DashboardStore);
+
+  private chartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('cashFlowChart');
+  private chart: Chart | null = null;
+
+  constructor() {
+    effect(() => {
+      const loading = this.store.loading();
+      const data = this.store.cashFlowChart();
+
+      if (loading || !data) return;
+
+      queueMicrotask(() => this.renderChart(data));
+    });
+  }
 
   ngOnInit(): void {
     this.store.loadDashboard();
+  }
+
+  ngOnDestroy(): void {
+    this.chart?.destroy();
+  }
+
+  private renderChart(data: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      tension: number;
+      fill: boolean;
+    }[];
+  }): void {
+    const canvas = this.chartCanvas()?.nativeElement;
+    if (!canvas) return;
+
+    this.chart?.destroy();
+
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: data.datasets.map((ds) => ({
+          label: ds.label,
+          data: ds.data,
+          borderColor: ds.borderColor,
+          tension: ds.tension ?? 0.4,
+          fill: false,
+        })),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+        },
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    };
+
+    this.chart = new Chart(canvas, config);
   }
 
   formatCurrency(value: number, currency = 'UAH'): string {

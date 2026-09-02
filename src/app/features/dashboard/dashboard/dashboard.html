@@ -5,7 +5,7 @@
       <p class="text-surface-500 mt-1 mb-0">Overview of your financial activity</p>
     </div>
     <div class="flex gap-2">
-      <button pButton severity="secondary" [outlined]="true">
+      <button pButton severity="secondary" [outlined]="true" type="button">
         <svg pIcon="download"></svg>
         Export
       </button>
@@ -93,6 +93,21 @@
   </div>
 
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <div class="xl:col-span-2">
+      <p-card>
+        <ng-template pTemplate="title">Cash Flow</ng-template>
+        <ng-template pTemplate="subtitle">Income vs Expenses (last 7 days)</ng-template>
+
+        <div class="h-80 relative">
+          @if (store.loading()) {
+            <p-skeleton height="100%" />
+          } @else {
+            <canvas #cashFlowChart></canvas>
+          }
+        </div>
+      </p-card>
+    </div>
+
     <p-card styleClass="h-full">
       <ng-template pTemplate="title">Recent Activity</ng-template>
 
@@ -108,7 +123,7 @@
                 <div class="font-medium truncate">{{ tx.description }}</div>
                 <div class="text-sm text-surface-500">{{ formatDate(tx.createdAt) }}</div>
               </div>
-              <div class="font-semibold whitespace-nowrap" [ngClass]="getTypeClass(tx.type)">
+              <div class="font-semibold whitespace-nowrap" [class]="getTypeClass(tx.type)">
                 {{ tx.type === 'credit' ? '+' : '-' }}
                 {{ formatCurrency(tx.amount, tx.currency) }}
               </div>
@@ -120,17 +135,10 @@
       </div>
 
       <div class="mt-6">
-        <button
-          pButton
-          label="View all transactions"
-          [text]="true"
-          icon="pi pi-arrow-right"
-          iconPos="right"
-          styleClass="w-full"
-          routerLink="/transactions"
-        >
+        <a pButton [text]="true" class="w-full justify-center" routerLink="/transactions">
+          View all transactions
           <svg pIcon="arrow-right"></svg>
-        </button>
+        </a>
       </div>
     </p-card>
   </div>
@@ -139,20 +147,38 @@
     <p-card>
       <div class="text-surface-500 text-sm">Total Income</div>
       <div class="text-xl font-bold text-emerald-500 mt-1">
-        {{ formatCurrency(store.totalIncome()) }}
+        @if (store.loading()) {
+          <p-skeleton width="6rem" height="1.5rem" />
+        } @else {
+          {{ formatCurrency(store.totalIncome()) }}
+        }
       </div>
     </p-card>
     <p-card>
       <div class="text-surface-500 text-sm">Total Expenses</div>
       <div class="text-xl font-bold text-red-500 mt-1">
-        {{ formatCurrency(store.totalExpense()) }}
+        @if (store.loading()) {
+          <p-skeleton width="6rem" height="1.5rem" />
+        } @else {
+          {{ formatCurrency(store.totalExpense()) }}
+        }
       </div>
     </p-card>
     <p-card>
       <div class="text-surface-500 text-sm">Healthy Data Sources</div>
       <div class="text-xl font-bold mt-1">
-        {{ store.healthySources() }} / {{ store.sources().length }}
+        @if (store.loading()) {
+          <p-skeleton width="4rem" height="1.5rem" />
+        } @else {
+          {{ store.healthySources() }} / {{ store.sources().length }}
+        }
       </div>
     </p-card>
   </div>
+
+  @if (store.error()) {
+    <p-card>
+      <div class="text-red-500">{{ store.error() }}</div>
+    </p-card>
+  }
 </div>
