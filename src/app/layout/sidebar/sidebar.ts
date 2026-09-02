@@ -1,13 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { SidebarModule } from 'primeng/sidebar';
 import { PIcon } from '@primeicons/angular';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { selectCurrentUser } from '@core/store/auth/auth.selectors';
 
 type NavItem = {
   label: string;
   icon: string;
   link: string;
+  visible?: boolean;
 };
 
 @Component({
@@ -17,11 +20,20 @@ type NavItem = {
   templateUrl: './sidebar.html',
 })
 export class Sidebar {
-  navItems = [
+  private store = inject(Store);
+  currentUser = this.store.selectSignal(selectCurrentUser);
+
+  navItems: NavItem[] = [
     {
       label: 'Dashboard',
       icon: 'home',
       link: '/',
+    },
+    {
+      label: 'Users',
+      icon: 'users',
+      link: '/users',
+      visible: this.currentUser()?.role === 'admin',
     },
     {
       label: 'Accounts',

@@ -3,19 +3,21 @@
   <p-sidebar-group-content>
     <p-sidebar-menu>
       @for (item of navItems; track $index) {
-        <p-sidebar-menu-item>
-          <a
-            pSidebarMenuButton
-            [isActive]="activeNivItem() === item"
-            [routerLink]="item.link"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (isActiveChange)="$event ? activeNivItem.set(item) : null"
-          >
-            <svg [pIcon]="item.icon"></svg>
-            <span>{{ item.label }}</span>
-          </a>
-        </p-sidebar-menu-item>
+        @if (item.visible !== false) {
+          <p-sidebar-menu-item>
+            <a
+              pSidebarMenuButton
+              [isActive]="activeNivItem() === item"
+              [routerLink]="item.link"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (isActiveChange)="$event ? activeNivItem.set(item) : null"
+            >
+              <svg [pIcon]="item.icon"></svg>
+              <span>{{ item.label }}</span>
+            </a>
+          </p-sidebar-menu-item>
+        }
       }
     </p-sidebar-menu>
   </p-sidebar-group-content>

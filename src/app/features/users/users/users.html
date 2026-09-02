@@ -1,0 +1,138 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Users</h1>
+      <p class="text-surface-500 mt-1 mb-0">Admin user management</p>
+    </div>
+    <button
+      pButton
+      severity="secondary"
+      [outlined]="true"
+      type="button"
+      (click)="store.loadUsers()"
+    >
+      <svg pIcon="refresh"></svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <p-card>
+      <div class="text-surface-500 text-sm">Total</div>
+      <div class="text-2xl font-bold mt-1">{{ store.totalCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Admins</div>
+      <div class="text-2xl font-bold mt-1">{{ store.adminCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Managers</div>
+      <div class="text-2xl font-bold mt-1">{{ store.managerCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Analysts</div>
+      <div class="text-2xl font-bold mt-1">{{ store.analystCount() }}</div>
+    </p-card>
+    <p-card>
+      <div class="text-surface-500 text-sm">Viewers</div>
+      <div class="text-2xl font-bold mt-1">{{ store.viewerCount() }}</div>
+    </p-card>
+  </div>
+
+  <p-card>
+    <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
+      <input
+        pInputText
+        class="flex-1"
+        placeholder="Search name, email, department..."
+        [ngModel]="store.filters().search"
+        (ngModelChange)="onSearch($event)"
+      />
+      <p-select
+        [options]="roleOptions"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full lg:w-44"
+        [ngModel]="store.filters().role"
+        (ngModelChange)="onRoleFilter($event)"
+      />
+      <button pButton severity="secondary" [outlined]="true" type="button" (click)="clearFilters()">
+        Clear
+      </button>
+    </div>
+  </p-card>
+
+  <p-card>
+    <p-table
+      [value]="store.filteredUsers()"
+      [loading]="store.loading()"
+      [rowHover]="true"
+      styleClass="p-datatable-sm"
+      [paginator]="true"
+      [rows]="10"
+    >
+      <ng-template #header>
+        <tr>
+          <th>User</th>
+          <th>Department</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th style="width: 12rem">Change role</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-user>
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              @if (user.photoURL) {
+                <img [src]="user.photoURL" alt="" class="w-9 h-9 rounded-full object-cover" />
+              } @else {
+                <p-avatar
+                  [label]="avatarLabel(user)"
+                  shape="circle"
+                  styleClass="bg-primary text-primary-contrast"
+                />
+              }
+              <div class="min-w-0">
+                <div class="font-medium truncate">
+                  {{ user.displayName }}
+                  @if (isSelf(user)) {
+                    <span class="text-xs text-surface-500">(you)</span>
+                  }
+                </div>
+                <div class="text-sm text-surface-500 truncate">{{ user.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ user.department || '—' }}</td>
+          <td>
+            <p-tag
+              [value]="user.role"
+              [severity]="getRoleSeverity(user.role)"
+              styleClass="capitalize"
+            />
+          </td>
+          <td>{{ formatDate(user.createdAt) }}</td>
+          <td>
+            <p-select
+              [options]="roleEditOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="user.role"
+              (ngModelChange)="onRoleChange(user, $event)"
+              [disabled]="isSelf(user) || store.saving()"
+              class="w-full"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="text-center py-8 text-surface-500">No users found</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
