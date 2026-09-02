@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Reports</h1>
       <p class="text-surface-500 mt-1 mb-0">Generated and scheduled reports</p>
     </div>
-    <button pButton>
+    <button type="button" pButton (click)="openCreate()">
       <svg pIcon="plus"></svg>
       New Report
     </button>
@@ -17,7 +17,7 @@
       [rowHover]="true"
       styleClass="p-datatable-sm"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Title</th>
           <th>Type</th>
@@ -27,7 +27,7 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-report>
+      <ng-template #body let-report>
         <tr>
           <td class="font-medium">{{ report.title }}</td>
           <td class="capitalize">{{ report.type }}</td>
@@ -42,19 +42,31 @@
           <td>
             <div class="flex gap-1 justify-end">
               @if (report.status === 'ready' && report.downloadUrl) {
-                <button pButton [rounded]="true" [text]="true" severity="secondary" iconOnly>
+                <button
+                  pButton
+                  [rounded]="true"
+                  [text]="true"
+                  severity="secondary"
+                  (click)="onDownload(report)"
+                >
                   <svg pIcon="download"></svg>
                 </button>
               }
-              <button pButton [rounded]="true" [text]="true" severity="secondary" iconOnly>
-                <svg pIcon="eye"></svg>
+              <button
+                pButton
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                (click)="onDelete(report)"
+              >
+                <svg pIcon="trash"></svg>
               </button>
             </div>
           </td>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
+      <ng-template #emptymessage>
         <tr>
           <td colspan="5" class="text-center py-8 text-surface-500">
             No reports yet. Create your first report.
@@ -64,3 +76,12 @@
     </p-table>
   </p-card>
 </div>
+
+<app-report-form-dialog
+  [visible]="showDialog()"
+  [saving]="store.saving()"
+  (visibleChange)="showDialog.set($event)"
+  (save)="onSave($event)"
+/>
+
+<p-confirmdialog />

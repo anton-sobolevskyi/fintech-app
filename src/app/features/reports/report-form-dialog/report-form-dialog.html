@@ -1,0 +1,91 @@
+<p-dialog
+  header="New Report"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  [draggable]="false"
+>
+  <form id="report-form" [formRoot]="reportForm" class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-2">
+      <label pLabel for="title">Title</label>
+      <input pInputText id="title" [formField]="reportForm.title" class="w-full" />
+      @if (reportForm.title().touched() && reportForm.title().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ reportForm.title().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="type">Type</label>
+      <p-select
+        inputId="type"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="reportForm.type"
+        class="w-full"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="dateFrom">From</label>
+        <input
+          pInputText
+          id="dateFrom"
+          type="date"
+          [formField]="reportForm.dateFrom"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label pLabel for="dateTo">To</label>
+        <input pInputText id="dateTo" type="date" [formField]="reportForm.dateTo" class="w-full" />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="accounts">Accounts (optional)</label>
+      <p-multiselect
+        inputId="accounts"
+        [options]="accountOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="reportForm.accountIds"
+        placeholder="All accounts"
+        class="w-full"
+        display="chip"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="currencies">Currencies (optional)</label>
+      <p-multiselect
+        inputId="currencies"
+        [options]="currencyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="reportForm.currencies"
+        placeholder="All currencies"
+        class="w-full"
+        display="chip"
+      />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <button type="button" pButton severity="secondary" [text]="true" (click)="onHide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      pButton
+      form="report-form"
+      [disabled]="saving() || reportForm().invalid()"
+    >
+      Generate
+    </button>
+  </ng-template>
+</p-dialog>
