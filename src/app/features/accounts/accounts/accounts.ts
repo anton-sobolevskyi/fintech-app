@@ -7,6 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { PIcon } from '@primeicons/angular';
 import { AccountStatus } from '@core/models/account.model';
+import { Currency } from '@core/models';
 
 type AccountStatusSeverity = 'success' | 'warn' | 'danger' | 'info';
 
@@ -37,7 +38,7 @@ export class Accounts {
     }
   }
 
-  formatCurrency(value: number, currency: string = 'UAH'): string {
+  formatCurrency(value: number, currency: Currency = 'USD'): string {
     return new Intl.NumberFormat('uk-UA', {
       style: 'currency',
       currency,
