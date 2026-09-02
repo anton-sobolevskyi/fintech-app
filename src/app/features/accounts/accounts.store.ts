@@ -1,22 +1,25 @@
+// features/accounts/accounts.store.ts
 import { computed, inject } from '@angular/core';
 import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
-import { Account } from '../../core/models';
-import { AccountService } from '../../core/services/account.service';
-import { selectCurrentUser } from '../../core/store/auth/auth.selectors';
+import { Account } from '@core/models';
+import { AccountService } from '@core/services/account.service';
+import { selectCurrentUser } from '@core/store/auth/auth.selectors';
 
 interface AccountsState {
   accounts: Account[];
   loading: boolean;
+  saving: boolean;
   error: string | null;
 }
 
 const initialState: AccountsState = {
   accounts: [],
   loading: false,
+  saving: false,
   error: null,
 };
 
@@ -35,9 +38,7 @@ export const AccountsStore = signalStore(
         tap(() => patchState(store, { loading: true, error: null })),
         switchMap(() => {
           const user = globalStore.selectSignal(selectCurrentUser)();
-          if (!user) {
-            return of([]);
-          }
+          if (!user) return of([]);
           return accountService.getByUserId(user.id);
         }),
         tapResponse({
@@ -50,5 +51,59 @@ export const AccountsStore = signalStore(
         }),
       ),
     ),
+
+    createAccount: rxMethod<Omit<Account, 'id' | 'createdAt' | 'updatedAt'>>(
+      pipe(
+        tap(() => patchState(store, { saving: true, error: null })),
+        switchMap((data) => {
+          const user = globalStore.selectSignal(selectCurrentUser)();
+          if (!user) return of(null);
+          return accountService.create({ ...data, userId: user.id });
+        }),
+        tapResponse({
+          next: () => {
+            patchState(store, { saving: false });
+            // realtime onSnapshot will refresh the list automatically
+          },
+          error: (error: any) =>
+            patchState(store, {
+              error: error.message || 'Failed to create account',
+              saving: false,
+            }),
+        }),
+      ),
+    ),
+
+    updateAccount: rxMethod<{ id: string; data: Partial<Account> }>(
+      pipe(
+        tap(() => patchState(store, { saving: true, error: null })),
+        switchMap(({ id, data }) => accountService.update(id, data)),
+        tapResponse({
+          next: () => patchState(store, { saving: false }),
+          error: (error: any) =>
+            patchState(store, {
+              error: error.message || 'Failed to update account',
+              saving: false,
+            }),
+        }),
+      ),
+    ),
+
+    deleteAccount: rxMethod<string>(
+      pipe(
+        tap(() => patchState(store, { saving: true, error: null })),
+        switchMap((id) => accountService.delete(id)),
+        tapResponse({
+          next: () => patchState(store, { saving: false }),
+          error: (error: any) =>
+            patchState(store, {
+              error: error.message || 'Failed to delete account',
+              saving: false,
+            }),
+        }),
+      ),
+    ),
+
+    clearError: () => patchState(store, { error: null }),
   })),
 );

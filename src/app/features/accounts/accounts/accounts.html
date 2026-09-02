@@ -5,7 +5,7 @@
       <p class="text-surface-500 mt-1 mb-0">Manage your bank accounts</p>
     </div>
 
-    <button type="button" pButton>
+    <button type="button" pButton (click)="openCreate()">
       <svg pIcon="plus"></svg>
       Add Account
     </button>
@@ -57,7 +57,7 @@
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
       [showCurrentPageReport]="true"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Name</th>
           <th>Type</th>
@@ -68,7 +68,7 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-account>
+      <ng-template #body let-account>
         <tr>
           <td>
             <div class="font-medium">{{ account.name }}</div>
@@ -92,30 +92,30 @@
             <div class="flex gap-1 justify-end">
               <button
                 pButton
-                [rounded]="true"
-                [text]="true"
-                severity="secondary"
-                pTooltip="View details"
                 iconOnly
+                rounded
+                text
+                severity="secondary"
+                (click)="openEdit(account)"
               >
-                <svg pIcon="eye"></svg>
+                <svg pIcon="pencil"></svg>
               </button>
               <button
                 pButton
-                [rounded]="true"
-                [text]="true"
-                severity="secondary"
-                pTooltip="Edit"
                 iconOnly
+                rounded
+                text
+                severity="danger"
+                (click)="onDelete(account)"
               >
-                <svg pIcon="pencil"></svg>
+                <svg pIcon="trash"></svg>
               </button>
             </div>
           </td>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
+      <ng-template #emptymessage>
         <tr>
           <td colspan="6" class="text-center py-8 text-surface-500">No accounts found</td>
         </tr>
@@ -123,3 +123,13 @@
     </p-table>
   </p-card>
 </div>
+
+<app-account-form-dialog
+  [visible]="showDialog()"
+  [account]="editingAccount()"
+  [saving]="store.saving()"
+  (visibleChange)="showDialog.set($event)"
+  (save)="onSave($event)"
+/>
+
+<p-confirmdialog />
