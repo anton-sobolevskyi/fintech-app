@@ -108,8 +108,8 @@ export abstract class FirestoreService<T extends FirestoreEntity> {
     return from(updateDoc(this.docRef(id), { ...data, updatedAt: serverTimestamp() } as any));
   }
 
-  delete(id: string): Observable<void> {
-    return from(deleteDoc(this.docRef(id)));
+  delete(id: string): Observable<string> {
+    return from(deleteDoc(this.docRef(id))).pipe(map(() => id));
   }
 
   protected where(field: string, op: WhereFilterOp, value: unknown): QueryConstraint {

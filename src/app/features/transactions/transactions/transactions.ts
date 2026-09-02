@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TransactionsStore } from '../transactions.store';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -10,6 +10,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { FormsModule } from '@angular/forms';
+import { TransactionFormDialog } from '../transaction-form-dialog/transaction-form-dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { Currency, Transaction, TransactionStatus, TransactionType } from '@core/models';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   imports: [
@@ -23,14 +28,23 @@ import { FormsModule } from '@angular/forms';
     InputGroupModule,
     InputGroupAddonModule,
     FormsModule,
+    TransactionFormDialog,
+    ConfirmDialogModule,
+    TooltipModule,
   ],
   selector: 'app-transactions',
   styleUrl: './transactions.css',
   templateUrl: './transactions.html',
-  providers: [TransactionsStore],
+  providers: [TransactionsStore, ConfirmationService],
 })
 export class Transactions {
   readonly store = inject(TransactionsStore);
+
+  private confirmation = inject(ConfirmationService);
+
+  showDialog = signal(false);
+  editingTx = signal<Transaction | null>(null);
+  accountOptions = this.store.accountOptions;
 
   typeOptions = [
     { label: 'All Types', value: null },
@@ -50,13 +64,14 @@ export class Transactions {
 
   ngOnInit(): void {
     this.store.loadTransactions();
+    this.store.loadAccounts();
   }
 
   loadMore(): void {
     this.store.loadMore();
   }
 
-  getTypeSeverity(type: string): 'success' | 'danger' | 'info' | 'warn' {
+  getTypeSeverity(type: TransactionType): 'success' | 'danger' | 'info' | 'warn' {
     switch (type) {
       case 'credit':
         return 'success';
@@ -71,7 +86,7 @@ export class Transactions {
     }
   }
 
-  getStatusSeverity(status: string): 'success' | 'danger' | 'warn' | 'info' {
+  getStatusSeverity(status: TransactionStatus): 'success' | 'danger' | 'warn' | 'info' {
     switch (status) {
       case 'completed':
         return 'success';
@@ -86,7 +101,7 @@ export class Transactions {
     }
   }
 
-  formatCurrency(value: number, currency: string = 'UAH'): string {
+  formatCurrency(value: number, currency: Currency = 'USD'): string {
     return new Intl.NumberFormat('uk-UA', {
       style: 'currency',
       currency,
@@ -123,5 +138,39 @@ export class Transactions {
   clearFilters(): void {
     this.store.resetFilters();
     this.store.loadTransactions();
+  }
+
+  openCreate(): void {
+    this.editingTx.set(null);
+    this.showDialog.set(true);
+  }
+
+  openEdit(tx: Transaction): void {
+    this.editingTx.set(tx);
+    this.showDialog.set(true);
+  }
+
+  onSave(data: any): void {
+    const editing = this.editingTx();
+    if (editing) {
+      this.store.updateTransaction({ id: editing.id, data });
+    } else {
+      this.store.createTransaction(data);
+    }
+    this.showDialog.set(false);
+    this.store.loadTransactions();
+  }
+
+  onDelete(tx: Transaction): void {
+    this.confirmation.confirm({
+      message: `Delete transaction "${tx.description}"?`,
+      header: 'Confirm',
+      accept: () => this.store.deleteTransaction(tx.id),
+    });
+  }
+
+  onAccountChange(accountId: string | null): void {
+    this.store.setFilter({ accountId });
+    this.store.applyFilters();
   }
 }

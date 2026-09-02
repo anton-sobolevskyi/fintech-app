@@ -6,11 +6,13 @@
     </div>
 
     <div class="flex gap-2">
-      <button pButton label="Export" severity="secondary" [outlined]="true" iconOnly>
+      <button pButton severity="secondary" outlined>
         <svg pIcon="download"></svg>
+        Export
       </button>
-      <button type="button" pButton label="New Transaction" iconOnly>
+      <button type="button" pButton (click)="openCreate()">
         <svg pIcon="plus"></svg>
+        New Transaction
       </button>
     </div>
   </div>
@@ -75,6 +77,16 @@
         (ngModelChange)="onStatusChange($event)"
       />
 
+      <p-select
+        [options]="accountOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Account"
+        class="w-full lg:w-52"
+        [ngModel]="store.filters().accountId"
+        (ngModelChange)="onAccountChange($event)"
+      />
+
       <button pButton severity="secondary" [outlined]="true" (onClick)="clearFilters()">
         <svg pIcon="filter-slash"></svg>
         Clear
@@ -89,17 +101,18 @@
       styleClass="p-datatable-sm"
       [rowHover]="true"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Date</th>
           <th>Description</th>
           <th>Type</th>
           <th>Status</th>
           <th class="text-right">Amount</th>
+          <th style="width: 7rem"></th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-tx>
+      <ng-template #body let-tx>
         <tr>
           <td class="whitespace-nowrap">
             {{ formatDate(tx.createdAt) }}
@@ -132,10 +145,32 @@
             {{ tx.type === 'credit' ? '+' : '-' }}
             {{ formatCurrency(tx.amount, tx.currency) }}
           </td>
+          <td>
+            <div class="flex gap-1 justify-end">
+              <button
+                pButton
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                (click)="openEdit(tx)"
+              >
+                <svg pIcon="pencil"></svg>
+              </button>
+              <button
+                pButton
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                (click)="onDelete(tx)"
+              >
+                <svg pIcon="trash"></svg>
+              </button>
+            </div>
+          </td>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
+      <ng-template #emptymessage>
         <tr>
           <td colspan="5" class="text-center py-8 text-surface-500">No transactions found</td>
         </tr>
@@ -159,3 +194,13 @@
     }
   </p-card>
 </div>
+
+<app-transaction-form-dialog
+  [visible]="showDialog()"
+  [transaction]="editingTx()"
+  [saving]="store.saving()"
+  (visibleChange)="showDialog.set($event)"
+  (save)="onSave($event)"
+/>
+
+<p-confirmdialog />

@@ -1,0 +1,122 @@
+<p-dialog
+  [header]="transaction() ? 'Edit Transaction' : 'New Transaction'"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  [draggable]="false"
+>
+  <form id="tx-form" [formRoot]="txForm" class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-2">
+      <label pLabel for="accountId">Account</label>
+      <p-select
+        inputId="accountId"
+        [options]="accountOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="txForm.accountId"
+        class="w-full"
+        placeholder="Select account"
+      />
+      @if (txForm.accountId().touched() && txForm.accountId().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ txForm.accountId().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="type">Type</label>
+        <p-select
+          inputId="type"
+          [options]="typeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [formField]="txForm.type"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label pLabel for="status">Status</label>
+        <p-select
+          inputId="status"
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [formField]="txForm.status"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="amount">Amount</label>
+        <input
+          pInputText
+          id="amount"
+          type="number"
+          step="0.01"
+          [formField]="txForm.amount"
+          class="w-full"
+        />
+        @if (txForm.amount().touched() && txForm.amount().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ txForm.amount().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2">
+        <label pLabel for="currency">Currency</label>
+        <p-select
+          inputId="currency"
+          [options]="currencyOptions"
+          optionLabel="label"
+          optionValue="value"
+          [formField]="txForm.currency"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="description">Description</label>
+      <input pInputText id="description" [formField]="txForm.description" class="w-full" />
+      @if (txForm.description().touched() && txForm.description().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ txForm.description().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="category">Category (optional)</label>
+      <input pInputText id="category" [formField]="txForm.category" class="w-full" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="counterpartyName">Counterparty (optional)</label>
+      <input
+        pInputText
+        id="counterpartyName"
+        [formField]="txForm.counterpartyName"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="reference">Reference (optional)</label>
+      <input pInputText id="reference" [formField]="txForm.reference" class="w-full" />
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <button type="button" pButton severity="secondary" [text]="true" (click)="onHide()">
+      Cancel
+    </button>
+    <button type="submit" pButton form="tx-form" [disabled]="saving() || txForm().invalid()">
+      {{ transaction() ? 'Save' : 'Create' }}
+    </button>
+  </ng-template>
+</p-dialog>
