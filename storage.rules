@@ -13,6 +13,11 @@ service firebase.storage {
                    && request.resource.contentType.matches('image/.*');
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
+
+    match /reports/{userId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // only Admin SDK / Functions
+    }
     
     match /{allPaths=**} {
       allow read, write: if false;
