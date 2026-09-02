@@ -7,7 +7,7 @@ import {
   User as FirebaseUser,
   updateProfile,
 } from 'firebase/auth';
-import { Observable, from, map, switchMap, of } from 'rxjs';
+import { Observable, from, map, switchMap, of, throwError } from 'rxjs';
 import { doc, getDoc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
 import { Theme, User } from '../models';
@@ -56,10 +56,7 @@ export class AuthService {
     return from(signOut(this.auth));
   }
 
-  updatePreferences(
-    uid: string,
-    prefs: { theme?: Theme; language?: string },
-  ): Observable<void> {
+  updatePreferences(uid: string, prefs: { theme?: Theme; language?: string }): Observable<void> {
     const userRef = doc(this.firestore, 'users', uid);
 
     const updateData: any = {};
@@ -67,6 +64,12 @@ export class AuthService {
     if (prefs.language) updateData['preferences.language'] = prefs.language;
 
     return from(updateDoc(userRef, updateData));
+  }
+
+  updateAuthPhoto(photoURL: string): Observable<void> {
+    const user = this.auth.currentUser;
+    if (!user) return throwError(() => new Error('Not authenticated'));
+    return from(updateProfile(user, { photoURL }));
   }
 
   authState$(): Observable<FirebaseUser | null> {

@@ -34,13 +34,20 @@
               <p-sidebar-menu>
                 <p-sidebar-menu-item>
                   <button pSidebarMenuButton class="p-1!" (click)="userMenu.toggle($event)">
-                    <p-avatar
-                      [label]="
-                        currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase
-                      "
-                      shape="circle"
-                      class="size-6 shrink-0 text-xs"
-                    />
+                    @if (user()?.photoURL) {
+                      <img
+                        [src]="user()!.photoURL"
+                        class="w-8 h-8 rounded-full object-cover"
+                        alt=""
+                      />
+                    } @else {
+                      <p-avatar
+                        [label]="
+                          currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase
+                        "
+                        shape="circle"
+                      />
+                    }
                     <span>{{ currentUser?.displayName || currentUser?.email }}</span>
                     <svg data-p-icon="chevron-down" class="ml-auto"></svg>
                   </button>
