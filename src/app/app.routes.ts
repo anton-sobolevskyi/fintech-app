@@ -13,6 +13,7 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
   },
+
   {
     path: '',
     canActivate: [authGuard],
@@ -42,7 +43,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/data-sources/data-sources/data-sources').then((m) => m.DataSources),
       },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/profile/profile/profile').then((m) => m.Profile),
+      },
     ],
   },
+
   { path: '**', redirectTo: 'login' },
 ];

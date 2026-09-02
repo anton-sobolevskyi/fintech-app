@@ -23,6 +23,11 @@ export const AuthActions = createActionGroup({
     'Load User Success': props<{ user: User | null }>(),
     'Load User Failure': props<{ error: string }>(),
 
+    // Update User
+    'Update User': emptyProps(),
+    'Update User Success': props<{ user: User | null }>(),
+    'Update User Failure': props<{ error: string }>(),
+
     'Clear Error': emptyProps(),
 
     'Update Preferences': props<{ theme?: Theme; language?: Locale }>(),

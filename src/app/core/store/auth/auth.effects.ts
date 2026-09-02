@@ -94,6 +94,18 @@ export class AuthEffects {
     ),
   );
 
+  updateUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updateUser),
+      switchMap(() =>
+        this.authService.currentUser$().pipe(
+          map((user) => AuthActions.updateUserSuccess({ user })),
+          catchError((error) => of(AuthActions.updateUserFailure({ error: error.message }))),
+        ),
+      ),
+    ),
+  );
+
   loginSuccess$ = createEffect(
     () =>
       this.actions$.pipe(

@@ -40,6 +40,14 @@ export const authReducer = createReducer(
     sessionChecking: false,
   })),
 
+  on(AuthActions.updateUserSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    isAuthenticated: !!user,
+    loading: false,
+    sessionChecking: false,
+  })),
+
   on(AuthActions.clearError, (state) => ({
     ...state,
     error: null,

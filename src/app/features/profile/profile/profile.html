@@ -1,0 +1,82 @@
+<div class="space-y-6 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Profile</h1>
+    <p class="text-surface-500 mt-1 mb-0">Manage your account and preferences</p>
+  </div>
+
+  <p-card>
+    <div class="flex items-center gap-4">
+      <p-avatar
+        [label]="avatarLabel()"
+        shape="circle"
+        size="large"
+        styleClass="bg-primary text-primary-contrast text-xl"
+      />
+      <div>
+        <div class="text-lg font-semibold">
+          {{ user()?.displayName || '—' }}
+        </div>
+        <div class="text-surface-500 text-sm">{{ user()?.email }}</div>
+        @if (user()?.role) {
+          <p-tag [value]="user()!.role" styleClass="mt-2 capitalize" />
+        }
+      </div>
+    </div>
+  </p-card>
+
+  <p-card header="Account details">
+    <form id="profile-form" [formRoot]="profileForm" class="flex flex-col gap-4 mt-2">
+      <div class="flex flex-col gap-2">
+        <label pLabel for="displayName">Display name</label>
+        <input pInputText id="displayName" [formField]="profileForm.displayName" class="w-full" />
+        @if (profileForm.displayName().touched() && profileForm.displayName().invalid()) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ profileForm.displayName().errors()[0].message }}
+          </p-message>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="email">Email</label>
+        <input pInputText id="email" type="email" [formField]="profileForm.email" class="w-full" />
+        <small class="text-surface-500">Email is managed by authentication</small>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label pLabel for="department">Department (optional)</label>
+        <input pInputText id="department" [formField]="profileForm.department" class="w-full" />
+      </div>
+
+      @if (success()) {
+        <p-message severity="success" styleClass="w-full">{{ success() }}</p-message>
+      }
+      @if (error()) {
+        <p-message severity="error" styleClass="w-full">{{ error() }}</p-message>
+      }
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          type="submit"
+          pButton
+          form="profile-form"
+          [disabled]="saving() || profileForm().invalid()"
+        >
+          Save changes
+        </button>
+      </div>
+    </form>
+  </p-card>
+
+  <p-card>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <div class="font-semibold">Sign out</div>
+        <div class="text-sm text-surface-500">End your session on this device</div>
+      </div>
+      <button type="button" pButton severity="danger" [outlined]="true" (click)="logout()">
+        <svg pIcon="sign-out"></svg>
+        Sign out
+      </button>
+    </div>
+  </p-card>
+</div>

@@ -13,7 +13,7 @@ import { SidebarModule } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
 import { ChevronDown } from '@primeicons/angular/chevron-down';
 import { Sidebar as SidebarIcon } from '@primeicons/angular/sidebar';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../core/store/auth/auth.selectors';
@@ -43,6 +43,7 @@ import { Locale, Theme } from '@core/models';
 })
 export class MainLayout implements OnInit, OnDestroy {
   private store = inject(Store);
+  private router = inject(Router);
 
   user = this.store.selectSignal(selectCurrentUser);
   theme = this.store.selectSignal(selectTheme);
@@ -75,7 +76,7 @@ export class MainLayout implements OnInit, OnDestroy {
         label: 'Settings',
         icon: 'pi pi-cog',
         command: () => {
-          // navigate to settings later
+          this.router.navigate(['/settings']);
         },
       },
       {
