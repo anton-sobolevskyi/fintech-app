@@ -140,5 +140,18 @@ export const ReportsStore = signalStore(
         }),
       ),
     ),
+
+    downloadReport: rxMethod<Report>(
+      pipe(
+        switchMap((report) => reportService.downloadReport(report)),
+        tapResponse({
+          next: () => {},
+          error: (err: any) =>
+            patchState(store, {
+              error: err.message || 'Failed to download report',
+            }),
+        }),
+      ),
+    ),
   })),
 );

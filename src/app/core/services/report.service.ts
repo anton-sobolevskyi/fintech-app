@@ -3,6 +3,7 @@ import { FirestoreService } from './firestore.service';
 import { Report, ReportType, ReportStatus } from '../models';
 import { Observable } from 'rxjs';
 import { QueryConstraint } from 'firebase/firestore';
+import { getDownloadURL, ref } from 'firebase/storage';
 
 @Service()
 export class ReportService extends FirestoreService<Report> {
@@ -23,5 +24,16 @@ export class ReportService extends FirestoreService<Report> {
 
     constraints.push(this.orderBy('createdAt', 'desc'));
     return this.getAll(constraints);
+  }
+
+  async downloadReport(report: Report): Promise<void> {
+    try {
+      const path = report.storagePath ?? `reports/${report.userId}/${report.id}.pdf`;
+
+      const url = await getDownloadURL(ref(this.storage, path));
+      window.open(url, '_blank');
+    } catch (e) {
+      console.error('Download failed', e);
+    }
   }
 }

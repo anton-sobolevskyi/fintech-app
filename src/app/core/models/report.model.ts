@@ -18,4 +18,5 @@ export interface Report {
   createdAt?: Timestamp;
   status: ReportStatus;
   downloadUrl?: string;
+  storagePath: string;
 }

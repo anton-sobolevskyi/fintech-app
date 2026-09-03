@@ -89,9 +89,7 @@ export class Reports {
   }
 
   onDownload(report: Report): void {
-    if (report.downloadUrl) {
-      window.open(report.downloadUrl, '_blank');
-    }
+    this.store.downloadReport(report);
   }
 
   onDelete(report: Report): void {

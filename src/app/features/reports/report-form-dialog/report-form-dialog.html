@@ -29,6 +29,34 @@
       />
     </div>
 
+    <div class="flex flex-col gap-2">
+      <label pLabel for="accounts">Accounts (optional)</label>
+      <p-select
+        inputId="accounts"
+        [options]="accountOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="reportForm.accountIds"
+        placeholder="All accounts"
+        class="w-full"
+        display="chip"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="currencies">Currencies (optional)</label>
+      <p-select
+        inputId="currencies"
+        [options]="currencyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="reportForm.currencies"
+        placeholder="All currencies"
+        class="w-full"
+        display="chip"
+      />
+    </div>
+
     <div class="grid grid-cols-2 gap-3">
       <div class="flex flex-col gap-2">
         <label pLabel for="dateFrom">From</label>
@@ -46,33 +74,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col gap-2">
-      <label pLabel for="accounts">Accounts (optional)</label>
-      <p-multiselect
-        inputId="accounts"
-        [options]="accountOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [formField]="reportForm.accountIds"
-        placeholder="All accounts"
-        class="w-full"
-        display="chip"
-      />
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <label pLabel for="currencies">Currencies (optional)</label>
-      <p-multiselect
-        inputId="currencies"
-        [options]="currencyOptions"
-        optionLabel="label"
-        optionValue="value"
-        [formField]="reportForm.currencies"
-        placeholder="All currencies"
-        class="w-full"
-        display="chip"
-      />
-    </div>
+    
   </form>
 
   <ng-template #footer>

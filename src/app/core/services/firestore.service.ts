@@ -20,7 +20,7 @@ import {
 } from 'firebase/firestore';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FIRESTORE } from '../firebase';
+import { FIREBASE_STORAGE, FIRESTORE } from '../firebase';
 
 export interface FirestoreEntity {
   id: string;
@@ -34,6 +34,7 @@ export interface PagedResult<T> {
 
 export abstract class FirestoreService<T extends FirestoreEntity> {
   protected firestore = inject(FIRESTORE);
+  protected storage = inject(FIREBASE_STORAGE);
   protected abstract collectionName: string;
 
   private get collectionRef() {
@@ -96,6 +97,7 @@ export abstract class FirestoreService<T extends FirestoreEntity> {
 
   create(data: Omit<T, 'id' | 'createdAt'>): Observable<string> {
     const payload = { ...data, createdAt: serverTimestamp() };
+    console.log('Creating document in collection:', this.collectionName, 'with payload:', payload);
     return from(addDoc(this.collectionRef, payload).then((ref) => ref.id));
   }
 
