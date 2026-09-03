@@ -15,10 +15,10 @@
     "module": "preserve",
     "types": ["node"],
     "paths": {
-      "@core/*": ["src/app/core/*"],
-      "@features/*": ["src/app/features/*"],
-      "@layout/*": ["src/app/layout/*"],
-      "@environments/*": ["src/environments/*"],
+      "@core/*": ["./src/app/core/*"],
+      "@features/*": ["./src/app/features/*"],
+      "@layout/*": ["./src/app/layout/*"],
+      "@environments/*": ["./src/environments/*"],
     }
   },
   "angularCompilerOptions": {
