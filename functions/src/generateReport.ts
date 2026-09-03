@@ -1,12 +1,16 @@
-import * as admin from "firebase-admin";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import {logger} from "firebase-functions";
+import * as admin from "firebase-admin";
 import PDFDocument from "pdfkit";
 import {Writable} from "stream";
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
+
+const isEmulator =
+  process.env.FUNCTIONS_EMULATOR === "true" ||
+  process.env.FIREBASE_STORAGE_EMULATOR_HOST != null;
 
 const buildPdfBuffer = (title: string, lines: string[]): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
@@ -20,14 +24,11 @@ const buildPdfBuffer = (title: string, lines: string[]): Promise<Buffer> => {
     });
     stream.on("finish", () => resolve(Buffer.concat(chunks)));
     stream.on("error", reject);
-
     doc.pipe(stream);
     doc.fontSize(18).text(title, {underline: true});
     doc.moveDown();
     doc.fontSize(11);
-    for (const line of lines) {
-      doc.text(line);
-    }
+    for (const line of lines) doc.text(line);
     doc.end();
   });
 };
@@ -48,7 +49,6 @@ export const onReportCreated = onDocumentCreated(document, async (event) => {
     const title = (data.title as string) || "Report";
     const type = data.type as string;
 
-    // Load related data (example: last transactions)
     const txSnap = await db
       .collection("transactions")
       .where("userId", "==", userId)
@@ -76,11 +76,22 @@ export const onReportCreated = onDocumentCreated(document, async (event) => {
       metadata: {metadata: {userId, reportId}},
     });
 
-    // Signed URL (7 days) — or make object public-read for that path via rules
-    const [downloadUrl] = await file.getSignedUrl({
-      action: "read",
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    });
+    let downloadUrl: string;
+
+    if (isEmulator) {
+      const host =
+        process.env.FIREBASE_STORAGE_EMULATOR_HOST || "127.0.0.1:5001";
+      const bucketName = bucket.name;
+      const encodedPath = encodeURIComponent(path);
+      downloadUrl =
+        `http://${host}/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
+    } else {
+      const [url] = await file.getSignedUrl({
+        action: "read",
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      });
+      downloadUrl = url;
+    }
 
     await snap.ref.update({
       status: "ready",
