@@ -17,69 +17,27 @@
       }
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
-      <div class="flex flex-col gap-2">
-        <label pLabel for="type">Type</label>
-        <p-select
-          inputId="type"
-          [options]="typeOptions"
-          optionLabel="label"
-          optionValue="value"
-          [formField]="accountForm.type"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-2">
-        <label pLabel for="currency">Currency</label>
-        <p-select
-          inputId="currency"
-          [options]="currencyOptions"
-          optionLabel="label"
-          optionValue="value"
-          [formField]="accountForm.currency"
-          class="w-full"
-        />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div class="flex flex-col gap-2">
-        <label pLabel for="balance">Balance</label>
-        <input
-          pInputText
-          id="balance"
-          type="number"
-          [formField]="accountForm.balance"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-2">
-        <label pLabel for="available">Available</label>
-        <input
-          pInputText
-          id="available"
-          type="number"
-          [formField]="accountForm.availableBalance"
-          class="w-full"
-        />
-      </div>
-    </div>
-
     <div class="flex flex-col gap-2">
-      <label pLabel for="status">Status</label>
+      <label pLabel for="type">Type</label>
       <p-select
-        inputId="status"
-        [options]="statusOptions"
+        inputId="type"
+        [options]="typeOptions"
         optionLabel="label"
         optionValue="value"
-        [formField]="accountForm.status"
+        [formField]="accountForm.type"
         class="w-full"
       />
     </div>
-
     <div class="flex flex-col gap-2">
-      <label pLabel for="iban">IBAN (optional)</label>
-      <input pInputText id="iban" [formField]="accountForm.iban" class="w-full" />
+      <label pLabel for="currency">Currency</label>
+      <p-select
+        inputId="currency"
+        [options]="currencyOptions"
+        optionLabel="label"
+        optionValue="value"
+        [formField]="accountForm.currency"
+        class="w-full"
+      />
     </div>
   </form>
 

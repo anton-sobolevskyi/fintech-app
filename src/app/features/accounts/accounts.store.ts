@@ -58,7 +58,13 @@ export const AccountsStore = signalStore(
         switchMap((data) => {
           const user = globalStore.selectSignal(selectCurrentUser)();
           if (!user) return of(null);
-          return accountService.create({ ...data, userId: user.id });
+          return accountService.create({
+            ...data,
+            userId: user.id,
+            balance: 0,
+            availableBalance: 0,
+            status: 'active',
+          });
         }),
         tapResponse({
           next: () => {

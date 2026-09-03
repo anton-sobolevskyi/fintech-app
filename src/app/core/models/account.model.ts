@@ -13,7 +13,7 @@ export interface Account {
   balance: number;
   availableBalance: number;
   status: AccountStatus;
-  iban?: string;
-  createdAt?: Timestamp;
+  iban: string;
+  createdAt: Timestamp;
   updatedAt?: Timestamp;
 }
