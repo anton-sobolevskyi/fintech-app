@@ -1,68 +1,73 @@
-import {
-  Component,
-  computed,
-  inject,
-  linkedSignal,
-  OnDestroy,
-  OnInit,
-  Signal,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, linkedSignal, Signal } from '@angular/core';
 import { AvatarModule } from 'primeng/avatar';
 import { SidebarModule } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
 import { ChevronDown } from '@primeicons/angular/chevron-down';
-import { Sidebar as SidebarIcon } from '@primeicons/angular/sidebar';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Store } from '@ngrx/store';
-import { selectCurrentUser } from '../../core/store/auth/auth.selectors';
 import { UpperCasePipe } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
-import { AuthActions } from '../../core/store/auth/auth.actions';
-import { selectLanguage, selectTheme } from '../../core/store/ui/ui.selectors';
-import { UiActions } from '../../core/store/ui/ui.actions';
-import { Locale, Theme } from '@core/models';
+import { filter, fromEvent, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { isMobileQuery } from '@core/utils';
+import { AuthActions, selectCurrentUser } from '@core/store/auth';
+import { PIcon } from '@primeicons/angular';
+import { UserAvatar } from '@shared/components/user-avatar/user-avatar';
 
 @Component({
   imports: [
     AvatarModule,
     SidebarModule,
     ButtonModule,
-    ChevronDown,
-    SidebarIcon,
     RouterOutlet,
     Sidebar,
     MenuModule,
-    UpperCasePipe,
+    PIcon,
+    UserAvatar
   ],
   selector: 'app-main-layout',
   styleUrl: './main-layout.css',
   templateUrl: './main-layout.html',
 })
-export class MainLayout implements OnInit, OnDestroy {
+export class MainLayout {
   private store = inject(Store);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   user = this.store.selectSignal(selectCurrentUser);
-  theme = this.store.selectSignal(selectTheme);
-  language = this.store.selectSignal(selectLanguage);
 
-  isMobile = signal(false);
-  open = signal(true);
+  isMobile = toSignal(
+    fromEvent<MediaQueryListEvent>(isMobileQuery, 'change').pipe(map((event) => event.matches)),
+    { initialValue: isMobileQuery.matches },
+  );
+  isNavigationEnd = toSignal(this.router.events.pipe(filter((e) => e instanceof NavigationEnd)));
+  open = linkedSignal<boolean, boolean>({
+    source: () => {
+      const isMobile = this.isMobile();
+      const isNavigationEnd = this.isNavigationEnd();
 
-  private mql?: MediaQueryList;
-  private mqlListener?: (e: MediaQueryListEvent) => void;
+      if (isMobile && isNavigationEnd) {
+        return false;
+      }
+
+      return !isMobile;
+    },
+    computation: (source, previous) => {
+      const isMobile = this.isMobile();
+
+      return isMobile ? source : Boolean(previous?.value);
+    },
+  });
 
   userItems: Signal<MenuItem[]> = computed(() => {
     const user = this.user();
-    const theme = this.theme();
-    const language = this.language();
 
     return [
       {
         label: user?.email,
+        disabled: true,
       },
       { separator: true },
       {
@@ -79,76 +84,12 @@ export class MainLayout implements OnInit, OnDestroy {
           this.router.navigate(['/settings']);
         },
       },
-      {
-        label: 'Appearance',
-        items: [
-          {
-            label: 'Light',
-            icon: theme === 'light' ? 'pi pi-dot' : 'pi pi-blank',
-            command: () => this.setTheme('light'),
-          },
-          {
-            label: 'Dark',
-            icon: theme === 'dark' ? 'pi pi-dot' : 'pi pi-blank',
-            command: () => this.setTheme('dark'),
-          },
-          {
-            label: 'System',
-            icon: theme === 'system' ? 'pi pi-dot' : 'pi pi-blank',
-            command: () => this.setTheme('system'),
-          },
-        ],
-      },
-      { separator: true },
-      {
-        label: 'Language',
-        items: [
-          {
-            label: 'English',
-            icon: language === 'en' ? 'pi pi-dot' : 'pi pi-blank',
-            command: () => this.setLanguage('en'),
-          },
-          {
-            label: 'Українська',
-            icon: language === 'uk' ? 'pi pi-dot' : 'pi pi-blank',
-            command: () => this.setLanguage('uk'),
-          },
-        ],
-      },
       { separator: true },
       {
         label: 'Sign Out',
         icon: 'pi pi-sign-out',
-        command: () => this.logout(),
+        command: () => this.store.dispatch(AuthActions.logout()),
       },
     ];
   });
-
-  ngOnInit() {
-    if (typeof window === 'undefined') return;
-    this.mql = window.matchMedia('(max-width: 1023px)');
-    this.isMobile.set(this.mql.matches);
-    this.open.set(!this.mql.matches);
-    this.mqlListener = (e) => {
-      this.isMobile.set(e.matches);
-      this.open.set(!e.matches);
-    };
-    this.mql.addEventListener('change', this.mqlListener);
-  }
-
-  ngOnDestroy() {
-    this.mql?.removeEventListener('change', this.mqlListener!);
-  }
-
-  logout(): void {
-    this.store.dispatch(AuthActions.logout());
-  }
-
-  setTheme(theme: Theme): void {
-    this.store.dispatch(UiActions.setTheme({ theme }));
-  }
-
-  setLanguage(language: Locale): void {
-    this.store.dispatch(UiActions.setLanguage({ language }));
-  }
 }

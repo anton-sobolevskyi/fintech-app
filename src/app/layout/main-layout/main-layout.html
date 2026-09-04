@@ -15,7 +15,7 @@
           <p-sidebar-header>
             <p-sidebar-menu>
               <p-sidebar-menu-item>
-                <button class="p-1! inline-flex items-center gap-4">
+                <button class="inline-flex items-center gap-4">
                   <div
                     class="flex size-6 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-violet-500 to-indigo-600 text-white text-xs font-bold leading-none"
                   >
@@ -34,22 +34,9 @@
               <p-sidebar-menu>
                 <p-sidebar-menu-item>
                   <button pSidebarMenuButton class="p-1!" (click)="userMenu.toggle($event)">
-                    @if (user()?.photoURL) {
-                      <img
-                        [src]="user()!.photoURL"
-                        class="w-8 h-8 rounded-full object-cover"
-                        alt=""
-                      />
-                    } @else {
-                      <p-avatar
-                        [label]="
-                          currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase
-                        "
-                        shape="circle"
-                      />
-                    }
+                    <app-user-avatar />
                     <span>{{ currentUser?.displayName || currentUser?.email }}</span>
-                    <svg data-p-icon="chevron-down" class="ml-auto"></svg>
+                    <svg pIcon="chevron-down" class="ml-auto"></svg>
                   </button>
                   <p-menu #userMenu [model]="userItems()" [popup]="true" appendTo="body" />
                 </p-sidebar-menu-item>
@@ -61,13 +48,19 @@
       </p-sidebar-aside>
     </p-sidebar>
     <p-sidebar-main>
-      <header
-        class="flex h-12 items-center gap-2 border-b border-surface-200 dark:border-surface-700 px-4"
-      >
-        <button pButton pSidebarTrigger target="layout" severity="secondary" text size="small">
-          <svg data-p-icon="sidebar"></svg>
+      <div class="flex px-4">
+        <button
+          pButton
+          pSidebarTrigger
+          target="layout"
+          severity="secondary"
+          text
+          size="small"
+          class="my-3"
+        >
+          <svg pIcon="sidebar"></svg>
         </button>
-      </header>
+      </div>
       <div class="flex-1 p-4 flex flex-col gap-4">
         <router-outlet />
       </div>
