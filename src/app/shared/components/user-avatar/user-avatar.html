@@ -1,10 +1,14 @@
 @let currentUser = user() || null;
 
 @if (currentUser?.photoURL; as photoURL) {
-  <img [src]="photoURL" class="size-8 rounded-full object-cover shrink-0" alt="" />
+  <img
+    [src]="photoURL"
+    class="rounded-full object-cover"
+    [ngClass]="getClasses()"
+    [alt]="currentUser?.displayName || currentUser?.email"
+  />
 } @else {
   <p-avatar
-    class="shrink-0"
     [label]="currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase"
     shape="circle"
   />

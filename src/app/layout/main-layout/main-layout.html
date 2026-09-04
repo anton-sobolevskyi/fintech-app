@@ -17,7 +17,7 @@
               <p-sidebar-menu-item>
                 <button class="inline-flex items-center gap-4">
                   <div
-                    class="flex size-6 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-violet-500 to-indigo-600 text-white text-xs font-bold leading-none"
+                    class="flex size-8 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-violet-500 to-indigo-600 text-white text-xs font-bold leading-none"
                   >
                     B
                   </div>
@@ -26,15 +26,17 @@
               </p-sidebar-menu-item>
             </p-sidebar-menu>
           </p-sidebar-header>
+
           <p-sidebar-content>
             <app-sidebar />
           </p-sidebar-content>
+
           @if (user(); as currentUser) {
             <p-sidebar-footer>
               <p-sidebar-menu>
                 <p-sidebar-menu-item>
-                  <button pSidebarMenuButton class="p-1!" (click)="userMenu.toggle($event)">
-                    <app-user-avatar />
+                  <button pSidebarMenuButton class="py-0 px-1" (click)="userMenu.toggle($event)">
+                    <app-user-avatar class="shrink-0" size="small" />
                     <span>{{ currentUser?.displayName || currentUser?.email }}</span>
                     <svg pIcon="chevron-down" class="ml-auto"></svg>
                   </button>
@@ -43,10 +45,12 @@
               </p-sidebar-menu>
             </p-sidebar-footer>
           }
+
           <button pSidebarRail></button>
         </p-sidebar-panel>
       </p-sidebar-aside>
     </p-sidebar>
+
     <p-sidebar-main>
       <div class="flex px-4">
         <button
