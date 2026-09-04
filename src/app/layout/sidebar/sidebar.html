@@ -8,12 +8,14 @@
             <a
               pSidebarMenuButton
               [isActive]="activeNivItem() === item"
-              [routerLink]="item.link"
+              [routerLink]="item.routerLink"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
               (isActiveChange)="$event ? activeNivItem.set(item) : null"
             >
-              <svg [pIcon]="item.icon"></svg>
+              @if (item.icon) {
+                <svg [pIcon]="item.icon"></svg>
+              }
               <span>{{ item.label }}</span>
             </a>
           </p-sidebar-menu-item>
