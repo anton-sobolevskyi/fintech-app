@@ -1,0 +1,11 @@
+@let currentUser = user() || null;
+
+@if (currentUser?.photoURL; as photoURL) {
+  <img [src]="photoURL" class="size-8 rounded-full object-cover shrink-0" alt="" />
+} @else {
+  <p-avatar
+    class="shrink-0"
+    [label]="currentUser?.displayName?.[0] || currentUser?.email[0] || '' | uppercase"
+    shape="circle"
+  />
+}
