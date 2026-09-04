@@ -27,7 +27,7 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        canActivate: [authGuard, adminGuard],
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/users/users/users').then((m) => m.Users),
       },
       {
@@ -37,6 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'transactions',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./features/transactions/transactions/transactions').then((m) => m.Transactions),
       },

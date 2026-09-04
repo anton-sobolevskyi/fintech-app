@@ -59,6 +59,7 @@ export const sidebarNavigation = (role: UserRole): MenuItem[] => [
     label: 'Transactions',
     icon: 'arrow-right-arrow-left',
     routerLink: '/transactions',
+    visible: role === 'admin',
   },
   {
     label: 'Reports',
