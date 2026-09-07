@@ -29,11 +29,10 @@ export class AuthService {
         const firebaseUser = credential.user;
         await updateProfile(firebaseUser, { displayName });
 
-        // 2. Create user profile in Firestore
         const userProfile: Omit<User, 'id'> = {
           email: firebaseUser.email!,
           displayName,
-          role: 'viewer', // default role
+          role: 'client',
           createdAt: serverTimestamp() as Timestamp,
           preferences: {
             theme: 'light',
@@ -43,7 +42,6 @@ export class AuthService {
 
         await setDoc(doc(this.firestore, 'users', firebaseUser.uid), userProfile);
 
-        // 3. Return the full user object
         return {
           id: firebaseUser.uid,
           ...userProfile,

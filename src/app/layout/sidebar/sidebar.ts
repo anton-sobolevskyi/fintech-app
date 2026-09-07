@@ -17,7 +17,7 @@ export class Sidebar {
   private store = inject(Store);
   currentUser = this.store.selectSignal(selectCurrentUser);
 
-  navItems = sidebarNavigation(this.currentUser()?.role ?? 'viewer');
+  navItems = sidebarNavigation(this.currentUser()?.role ?? 'client');
 
   activeNivItem = signal(this.navItems[0]);
 }

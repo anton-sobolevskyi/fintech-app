@@ -42,15 +42,6 @@ export const routes: Routes = [
           import('./features/transactions/transactions/transactions').then((m) => m.Transactions),
       },
       {
-        path: 'reports',
-        loadComponent: () => import('./features/reports/reports/reports').then((m) => m.Reports),
-      },
-      {
-        path: 'sources',
-        loadComponent: () =>
-          import('./features/data-sources/data-sources/data-sources').then((m) => m.DataSources),
-      },
-      {
         path: 'settings',
         loadComponent: () => import('./features/profile/profile/profile').then((m) => m.Profile),
       },
