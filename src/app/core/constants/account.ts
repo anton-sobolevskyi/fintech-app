@@ -1,19 +1,13 @@
-export const accountTypeOptions = [
-  { label: 'Checking', value: 'checking' },
-  { label: 'Savings', value: 'savings' },
-  { label: 'Investment', value: 'investment' },
-  { label: 'Credit', value: 'credit' },
-  { label: 'Loan', value: 'loan' },
-];
+import { Currency } from '@core/models';
 
-export const currencyOptions = [
+type Option<TLabel extends string, TValue> = {
+  label: TLabel;
+  value: TValue;
+};
+
+export const currencyOptions: Option<Currency, Currency>[] = [
   { label: 'UAH', value: 'UAH' },
   { label: 'USD', value: 'USD' },
   { label: 'EUR', value: 'EUR' },
 ];
 
-export const accountStatusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Frozen', value: 'frozen' },
-  { label: 'Closed', value: 'closed' },
-];

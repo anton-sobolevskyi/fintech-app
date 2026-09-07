@@ -1,13 +1,20 @@
-// features/accounts/accounts.store.ts
 import { computed, inject } from '@angular/core';
-import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
+import {
+  signalStore,
+  withState,
+  withMethods,
+  withComputed,
+  patchState,
+  withHooks,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, of } from 'rxjs';
+import { pipe, switchMap, tap, of, throwError } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
-import { Account } from '@core/models';
+import { Account, Currency } from '@core/models';
 import { AccountService } from '@core/services/account.service';
-import { selectCurrentUser } from '@core/store/auth/auth.selectors';
+import { selectCurrentUser } from '@core/store/auth';
+import { currencyOptions } from '@core/constants';
 
 interface AccountsState {
   accounts: Account[];
@@ -27,9 +34,10 @@ export const AccountsStore = signalStore(
   withState(initialState),
 
   withComputed(({ accounts }) => ({
-    totalBalance: computed(() => accounts().reduce((sum, acc) => sum + (acc.balance || 0), 0)),
-    activeCount: computed(() => accounts().filter((a) => a.status === 'active').length),
-    accountsCount: computed(() => accounts().length),
+    visibleAccounts: computed(() => accounts().filter((a) => a.status !== 'closed')),
+    availableCurrencies: computed(() =>
+      currencyOptions.filter((option) => accounts().every((a) => a.currency !== option.value)),
+    ),
   })),
 
   withMethods((store, accountService = inject(AccountService), globalStore = inject(Store)) => ({
@@ -52,25 +60,32 @@ export const AccountsStore = signalStore(
       ),
     ),
 
-    createAccount: rxMethod<Omit<Account, 'id' | 'createdAt' | 'updatedAt'>>(
+    createAccount: rxMethod<{ currency: Currency }>(
       pipe(
         tap(() => patchState(store, { saving: true, error: null })),
-        switchMap((data) => {
+        switchMap(({ currency }) => {
           const user = globalStore.selectSignal(selectCurrentUser)();
-          if (!user) return of(null);
-          return accountService.create({
-            ...data,
+          if (!user) return throwError(() => new Error('Not authenticated'));
+
+          const taken = store
+            .accounts()
+            .some((a) => a.currency === currency && a.status !== 'closed');
+          if (taken) {
+            return throwError(() => new Error(`Account in ${currency} already exists`));
+          }
+
+          return accountService.createWithUniqueIban({
             userId: user.id,
+            name: `Checking · ${currency}`,
+            type: 'checking',
+            currency,
             balance: 0,
             availableBalance: 0,
             status: 'active',
-          });
+          } as Omit<Account, 'id' | 'createdAt' | 'iban'>);
         }),
         tapResponse({
-          next: () => {
-            patchState(store, { saving: false });
-            // realtime onSnapshot will refresh the list automatically
-          },
+          next: () => patchState(store, { saving: false }),
           error: (error: any) =>
             patchState(store, {
               error: error.message || 'Failed to create account',
@@ -80,36 +95,12 @@ export const AccountsStore = signalStore(
       ),
     ),
 
-    updateAccount: rxMethod<{ id: string; data: Partial<Account> }>(
-      pipe(
-        tap(() => patchState(store, { saving: true, error: null })),
-        switchMap(({ id, data }) => accountService.update(id, data)),
-        tapResponse({
-          next: () => patchState(store, { saving: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to update account',
-              saving: false,
-            }),
-        }),
-      ),
-    ),
-
-    deleteAccount: rxMethod<string>(
-      pipe(
-        tap(() => patchState(store, { saving: true, error: null })),
-        switchMap((id) => accountService.delete(id)),
-        tapResponse({
-          next: () => patchState(store, { saving: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to delete account',
-              saving: false,
-            }),
-        }),
-      ),
-    ),
-
     clearError: () => patchState(store, { error: null }),
   })),
+
+  withHooks({
+    onInit: (store) => {
+      store.loadAccounts();
+    },
+  }),
 );

@@ -1,43 +1,28 @@
 <p-dialog
-  [header]="account() ? 'Edit Account' : 'New Account'"
+  header="New account"
   [visible]="visible()"
   (visibleChange)="visibleChange.emit($event)"
   [modal]="true"
-  [style]="{ width: '480px' }"
+  [style]="{ width: '400px' }"
   [draggable]="false"
 >
   <form id="account-form" [formRoot]="accountForm" class="flex flex-col gap-4 pt-2">
     <div class="flex flex-col gap-2">
-      <label pLabel for="name">Name</label>
-      <input pInputText id="name" [formField]="accountForm.name" class="w-full" />
-      @if (accountForm.name().touched() && accountForm.name().invalid()) {
-        <p-message severity="error" size="small" variant="simple">
-          {{ accountForm.name().errors()[0].message }}
+      <label pLabel for="currency">Currency</label>
+
+      <p-selectbutton
+        [options]="availableCurrencies()"
+        [formField]="accountForm.currency"
+        optionLabel="label"
+        optionValue="value"
+        aria-labelledby="basic"
+      />
+
+      @if (availableCurrencies().length === 0) {
+        <p-message severity="warn" size="small" variant="simple">
+          You already have an account in every available currency.
         </p-message>
       }
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <label pLabel for="type">Type</label>
-      <p-select
-        inputId="type"
-        [options]="typeOptions"
-        optionLabel="label"
-        optionValue="value"
-        [formField]="accountForm.type"
-        class="w-full"
-      />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label pLabel for="currency">Currency</label>
-      <p-select
-        inputId="currency"
-        [options]="currencyOptions"
-        optionLabel="label"
-        optionValue="value"
-        [formField]="accountForm.currency"
-        class="w-full"
-      />
     </div>
   </form>
 
@@ -49,9 +34,9 @@
       type="submit"
       pButton
       form="account-form"
-      [disabled]="saving() || accountForm().invalid()"
+      [disabled]="saving() || accountForm().invalid() || availableCurrencies().length === 0"
     >
-      {{ account() ? 'Save' : 'Create' }}
+      Create
     </button>
   </ng-template>
 </p-dialog>
