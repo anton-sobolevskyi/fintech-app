@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 import { Currency, ID } from './common.model';
 
-export type AccountType = 'checking' | 'savings' | 'investment' | 'credit' | 'loan';
+export type AccountType = 'checking' | 'savings';
 export type AccountStatus = 'active' | 'frozen' | 'closed';
 
 export interface Account {
