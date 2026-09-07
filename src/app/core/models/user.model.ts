@@ -1,15 +1,12 @@
 import { Timestamp } from 'firebase/firestore';
-import { ID, Locale } from './common.model';
+import { ID, Locale, Theme } from './common.model';
 
-export type UserRole = 'admin' | 'manager' | 'analyst' | 'viewer';
-export type Theme = 'system' | 'light' | 'dark';
-
+export type UserRole = 'admin' | 'analyst' | 'client';
 export interface User {
   id: ID;
   email: string;
   displayName: string;
   role: UserRole;
-  department?: string;
   photoURL?: string;
   createdAt?: Timestamp;
   lastLoginAt?: Timestamp;
