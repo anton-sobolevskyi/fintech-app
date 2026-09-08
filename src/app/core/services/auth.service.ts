@@ -8,7 +8,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { Observable, from, map, switchMap, of, throwError } from 'rxjs';
-import { doc, getDoc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
 import { User } from '../models';
 
@@ -29,16 +29,21 @@ export class AuthService {
         const firebaseUser = credential.user;
         await updateProfile(firebaseUser, { displayName });
 
-        const userProfile: Omit<User, 'id'> = {
+        // Persist the user profile document in Firestore (doc id = uid)
+        const userRef = doc(this.firestore, 'users', firebaseUser.uid);
+        await setDoc(userRef, {
           email: firebaseUser.email!,
           displayName,
           role: 'client',
-          createdAt: serverTimestamp() as Timestamp,
-        };
+          createdAt: serverTimestamp(),
+        });
 
+        // `createdAt` is resolved server-side, so it is omitted here
         return {
           id: firebaseUser.uid,
-          ...userProfile,
+          email: firebaseUser.email!,
+          displayName,
+          role: 'client',
         } satisfies User;
       }),
     );

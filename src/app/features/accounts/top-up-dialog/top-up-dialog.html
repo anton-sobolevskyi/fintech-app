@@ -1,0 +1,51 @@
+<p-dialog
+  header="Top up account"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [draggable]="false"
+>
+  <div class="flex flex-col gap-2 pt-2">
+    <p-message severity="info" size="small" variant="simple">
+      Add funds to <strong>{{ account()?.name }}</strong> ({{ account()?.currency }})
+    </p-message>
+  </div>
+
+  <form id="top-up-form" [formRoot]="topUpForm" class="flex flex-col gap-4 pt-2">
+    <div class="flex flex-col gap-2">
+      <label pLabel for="top-up-amount">Amount ({{ account()?.currency }})</label>
+      <input
+        pInputText
+        id="top-up-amount"
+        type="number"
+        step="0.01"
+        [formField]="topUpForm.amount"
+        autocomplete="off"
+      />
+      @if (topUpForm.amount().touched() && topUpForm.amount().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ topUpForm.amount().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    @if (error()) {
+      <p-message severity="error" size="small" variant="simple">{{ error() }}</p-message>
+    }
+  </form>
+
+  <ng-template #footer>
+    <button type="button" pButton severity="secondary" [text]="true" (click)="onHide()">
+      Cancel
+    </button>
+    <button
+      type="submit"
+      pButton
+      form="top-up-form"
+      [disabled]="operating() || topUpForm().invalid()"
+    >
+      Top up
+    </button>
+  </ng-template>
+</p-dialog>

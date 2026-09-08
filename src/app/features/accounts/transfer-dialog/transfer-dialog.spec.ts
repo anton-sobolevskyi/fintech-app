@@ -1,19 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Accounts } from './accounts';
+import { TransferDialog } from './transfer-dialog';
 import { provideMockStore } from '@ngrx/store/testing';
 import { initialAuthState } from '@core/store/auth/auth.models';
 import { AccountService } from '@core/services/account.service';
 import { AccountOperationsService } from '@core/services/account-operations.service';
 import { ReportService } from '@core/services/report.service';
+import { AccountsStore } from '../accounts.store';
 import { of } from 'rxjs';
 
-describe('Accounts', () => {
-  let component: Accounts;
-  let fixture: ComponentFixture<Accounts>;
+describe('TransferDialog', () => {
+  let component: TransferDialog;
+  let fixture: ComponentFixture<TransferDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Accounts],
+      imports: [TransferDialog],
       providers: [
         provideMockStore({
           initialState: {
@@ -22,7 +23,7 @@ describe('Accounts', () => {
         }),
         {
           provide: AccountService,
-          useValue: { getByUserId: () => of([]), createWithUniqueIban: () => of('id') },
+          useValue: { getByUserId: () => of([]) },
         },
         {
           provide: AccountOperationsService,
@@ -36,19 +37,16 @@ describe('Accounts', () => {
           provide: ReportService,
           useValue: { create: () => of('report-id') },
         },
+        AccountsStore,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Accounts);
+    fixture = TestBed.createComponent(TransferDialog);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should format IBAN with spaces', () => {
-    expect(component.formatIbanText('UA1234567890')).toContain('UA12 3456 7890');
   });
 });

@@ -8,6 +8,35 @@
 >
   <form id="account-form" [formRoot]="accountForm" class="flex flex-col gap-4 pt-2">
     <div class="flex flex-col gap-2">
+      <label pLabel for="account-name">Account name</label>
+      <input pInputText id="account-name" [formField]="accountForm.name" autocomplete="off" />
+      @if (accountForm.name().touched() && accountForm.name().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ accountForm.name().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label pLabel for="account-type">Account type</label>
+
+      <p-selectbutton
+        [options]="accountTypeOptions"
+        [formField]="accountForm.type"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+        aria-labelledby="account-type"
+      />
+
+      @if (accountForm.type().touched() && accountForm.type().invalid()) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ accountForm.type().errors()[0].message }}
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
       <label pLabel for="currency">Currency</label>
 
       <p-selectbutton
@@ -15,7 +44,8 @@
         [formField]="accountForm.currency"
         optionLabel="label"
         optionValue="value"
-        aria-labelledby="basic"
+        [allowEmpty]="false"
+        aria-labelledby="currency"
       />
 
       @if (availableCurrencies().length === 0) {

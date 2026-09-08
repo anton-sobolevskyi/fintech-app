@@ -1,14 +1,18 @@
 import { Component, inject, input, output, signal } from '@angular/core';
-import { form, FormRoot, FormField, required } from '@angular/forms/signals';
+import { form, FormRoot, FormField, required, minLength } from '@angular/forms/signals';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { LabelModule } from 'primeng/label';
 import { MessageModule } from 'primeng/message';
-import { Currency } from '@core/models';
+import { AccountType, Currency } from '@core/models';
+import { accountTypeOptions } from '@core/constants';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { AccountsStore } from '../accounts.store';
 
 interface AccountFormModel {
+  name: string;
+  type: AccountType;
   currency: Currency;
 }
 
@@ -18,6 +22,7 @@ interface AccountFormModel {
     DialogModule,
     FormRoot,
     FormField,
+    InputTextModule,
     SelectButtonModule,
     ButtonDirective,
     LabelModule,
@@ -32,14 +37,19 @@ export class AccountFormDialog {
 
   visibleChange = output<boolean>();
 
-  private model = signal<AccountFormModel>({ currency: 'UAH' });
+  private model = signal<AccountFormModel>({ name: '', type: 'checking', currency: 'UAH' });
 
   saving = this.store.saving;
   availableCurrencies = this.store.availableCurrencies;
 
+  protected accountTypeOptions = accountTypeOptions;
+
   protected accountForm = form(
     this.model,
     (p) => {
+      required(p.name, { message: 'Account name is required' });
+      minLength(p.name, 2, { message: 'Minimum 2 characters' });
+      required(p.type, { message: 'Account type is required' });
       required(p.currency, { message: 'Currency is required' });
     },
     {
@@ -47,6 +57,7 @@ export class AccountFormDialog {
         action: async (f) => {
           if (f().invalid()) return;
           this.store.createAccount(f().value());
+          this.visibleChange.emit(false);
         },
       },
     },
