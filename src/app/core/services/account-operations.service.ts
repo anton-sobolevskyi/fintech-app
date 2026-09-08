@@ -13,9 +13,32 @@ export interface AccountByIbanInfo {
   ownerName: string;
 }
 
+export interface CreateAccountRequest {
+  name: string;
+  type: string;
+  currency: string;
+  balance: number;
+  availableBalance: number;
+  status: string;
+}
+
+export interface CreateAccountResponse {
+  success: boolean;
+  accountId: string;
+  iban: string;
+}
+
 @Service()
 export class AccountOperationsService {
   private functions = inject(FIREBASE_FUNCTIONS);
+
+  createAccount(data: CreateAccountRequest): Observable<CreateAccountResponse> {
+    const call = httpsCallable<CreateAccountRequest, CreateAccountResponse>(
+      this.functions,
+      'createAccount',
+    );
+    return from(call(data)).pipe(map((result) => result.data));
+  }
 
   topUp(accountId: string, amount: number): Observable<void> {
     const call = httpsCallable<{ accountId: string; amount: number }>(

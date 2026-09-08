@@ -23,11 +23,12 @@ describe('AccountFormDialog', () => {
         }),
         {
           provide: AccountService,
-          useValue: { createWithUniqueIban: () => of('id') },
+          useValue: {},
         },
         {
           provide: AccountOperationsService,
           useValue: {
+            createAccount: () => of({ success: true, accountId: 'acc-1', iban: 'UA1234567890' }),
             topUp: () => of(undefined),
             lookupByIban: () => of({} as any),
             transfer: () => of(undefined),

@@ -1,11 +1,21 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import {generateUaIban} from "./utils/iban.utils";
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const db = admin.firestore();
+
+interface CreateAccountData {
+  name: string;
+  type: string;
+  currency: string;
+  balance: number;
+  availableBalance: number;
+  status: string;
+}
 
 interface TopUpData {
   accountId: string;
@@ -28,6 +38,76 @@ const maskName = (name: string) => {
   const parts = name.trim().split(/\s+/);
   return parts.map((p, i) => (i === 0 ? p : `${p[0]}.`)).join(" ");
 };
+
+const MAX_IBAN_RETRIES = 3;
+
+export const createAccount = onCall<CreateAccountData>(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "You must be signed in.");
+  }
+
+  const {name, type, currency, balance, availableBalance, status} = request.data ?? ({} as CreateAccountData);
+  if (!name || !type || !currency || typeof balance !== "number" || typeof availableBalance !== "number" || !status) {
+    throw new HttpsError("invalid-argument", "Name, type, currency, balance, availableBalance, and status are required.");
+  }
+
+  // Check if user already has an account with this currency
+  const existingAccountSnap = await db
+    .collection("accounts")
+    .where("userId", "==", uid)
+    .where("currency", "==", currency)
+    .where("status", "!=", "closed")
+    .limit(1)
+    .get();
+
+  if (!existingAccountSnap.empty) {
+    throw new HttpsError("already-exists", `Account in ${currency} already exists`);
+  }
+
+  // Generate unique IBAN and create account in a transaction
+  const result = await db.runTransaction(async (tx) => {
+    let iban: string = "";
+    let attempts = 0;
+
+    while (attempts <= MAX_IBAN_RETRIES) {
+      const seed = `${uid}-${name}-${Date.now()}-${attempts}-${Math.random()}`;
+      iban = generateUaIban(seed);
+
+      // Check if IBAN already exists
+      const ibanSnap = await tx.get(
+        db.collection("accounts").where("iban", "==", iban).limit(1)
+      );
+
+      if (ibanSnap.empty) {
+        // IBAN is unique, create the account
+        const accountRef = db.collection("accounts").doc();
+        const now = admin.firestore.FieldValue.serverTimestamp();
+
+        tx.set(accountRef, {
+          userId: uid,
+          name,
+          type,
+          currency,
+          balance,
+          availableBalance,
+          status,
+          iban,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        return {accountId: accountRef.id, iban};
+      }
+
+      attempts++;
+    }
+
+    throw new HttpsError("internal", "Could not allocate unique IBAN");
+  });
+
+  return {success: true, accountId: result.accountId, iban: result.iban};
+});
 
 export const topUpAccount = onCall<TopUpData>(async (request) => {
   const uid = request.auth?.uid;

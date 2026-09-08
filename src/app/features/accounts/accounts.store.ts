@@ -85,22 +85,14 @@ export const AccountsStore = signalStore(
           const user = globalStore.selectSignal(selectCurrentUser)();
           if (!user) return throwError(() => new Error('Not authenticated'));
 
-          const taken = store
-            .accounts()
-            .some((a) => a.currency === currency && a.status !== 'closed');
-          if (taken) {
-            return throwError(() => new Error(`Account in ${currency} already exists`));
-          }
-
-          return accountService.createWithUniqueIban({
-            userId: user.id,
+          return operationsService.createAccount({
             name,
             type,
             currency,
             balance: 0,
             availableBalance: 0,
             status: 'active',
-          } as Omit<Account, 'id' | 'createdAt' | 'iban'>);
+          });
         }),
         tapResponse({
           next: () => patchState(store, { saving: false }),

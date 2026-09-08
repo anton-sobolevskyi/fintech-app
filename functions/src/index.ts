@@ -9,7 +9,7 @@
 
 import {setGlobalOptions} from "firebase-functions";
 export {onReportCreated} from "./generateReport";
-export {topUpAccount, lookupAccountByIban, transferFunds} from "./transactions";
+export {topUpAccount, lookupAccountByIban, transferFunds, createAccount} from "./transactions";
 // import {onRequest} from "firebase-functions/https";
 // import * as logger from "firebase-functions/logger";
 
