@@ -6,6 +6,7 @@ import { catchError, map, of, switchMap, tap, withLatestFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from './auth.selectors';
+import { getAuthErrorMessage } from '../../utils';
 
 @Injectable()
 export class AuthEffects {
@@ -30,7 +31,7 @@ export class AuthEffects {
             ),
           ),
           catchError((error) =>
-            of(AuthActions.loginFailure({ error: error.message || 'Login failed' })),
+            of(AuthActions.loginFailure({ error: getAuthErrorMessage(error) })),
           ),
         ),
       ),
@@ -44,7 +45,7 @@ export class AuthEffects {
         this.authService.register(email, password, displayName).pipe(
           map((user) => AuthActions.registerSuccess({ user })),
           catchError((error) =>
-            of(AuthActions.registerFailure({ error: error.message || 'Registration failed' })),
+            of(AuthActions.registerFailure({ error: getAuthErrorMessage(error) })),
           ),
         ),
       ),
@@ -92,7 +93,9 @@ export class AuthEffects {
               this.router.navigate(['/']);
             }
           }),
-          catchError((error) => of(AuthActions.loadUserFailure({ error: error.message }))),
+          catchError((error) =>
+            of(AuthActions.loadUserFailure({ error: getAuthErrorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -104,7 +107,9 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.currentUser$().pipe(
           map((user) => AuthActions.updateUserSuccess({ user })),
-          catchError((error) => of(AuthActions.updateUserFailure({ error: error.message }))),
+          catchError((error) =>
+            of(AuthActions.updateUserFailure({ error: getAuthErrorMessage(error) })),
+          ),
         ),
       ),
     ),
@@ -130,7 +135,9 @@ export class AuthEffects {
 
         return this.authService.updatePreferences(user.id, { theme, language }).pipe(
           map(() => AuthActions.updatePreferencesSuccess({ theme, language })),
-          catchError((error) => of(AuthActions.updatePreferencesFailure({ error: error.message }))),
+          catchError((error) =>
+            of(AuthActions.updatePreferencesFailure({ error: getAuthErrorMessage(error) })),
+          ),
         );
       }),
     ),
