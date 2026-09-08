@@ -14,10 +14,14 @@ import { Store } from '@ngrx/store';
 import { Timestamp } from 'firebase/firestore';
 import { Account, AccountType, Currency } from '@core/models';
 import { AccountService } from '@core/services/account.service';
-import { AccountOperationsService, AccountByIbanInfo } from '@core/services/account-operations.service';
+import {
+  AccountOperationsService,
+  AccountByIbanInfo,
+} from '@core/services/account-operations.service';
 import { ReportService } from '@core/services/report.service';
 import { selectCurrentUser } from '@core/store/auth';
 import { currencyOptions } from '@core/constants';
+import { EventService } from '@core/services/event.service';
 
 interface AccountsState {
   accounts: Account[];
@@ -58,144 +62,163 @@ export const AccountsStore = signalStore(
       operationsService = inject(AccountOperationsService),
       reportService = inject(ReportService),
       globalStore = inject(Store),
+      eventService = inject(EventService),
     ) => ({
-    loadAccounts: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
-        switchMap(() => {
-          const user = globalStore.selectSignal(selectCurrentUser)();
-          if (!user) return of([]);
-          return accountService.getByUserId(user.id);
-        }),
-        tapResponse({
-          next: (accounts) => patchState(store, { accounts, loading: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to load accounts',
-              loading: false,
-            }),
-        }),
-      ),
-    ),
-
-    createAccount: rxMethod<{ name: string; type: AccountType; currency: Currency }>(
-      pipe(
-        tap(() => patchState(store, { saving: true, error: null })),
-        switchMap(({ name, type, currency }) => {
-          const user = globalStore.selectSignal(selectCurrentUser)();
-          if (!user) return throwError(() => new Error('Not authenticated'));
-
-          return operationsService.createAccount({
-            name,
-            type,
-            currency,
-            balance: 0,
-            availableBalance: 0,
-            status: 'active',
-          });
-        }),
-        tapResponse({
-          next: () => patchState(store, { saving: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to create account',
-              saving: false,
-            }),
-        }),
-      ),
-    ),
-
-    lookupByIban: rxMethod<string>(
-      pipe(
-        tap(() => patchState(store, { recipientLoading: true, recipientError: null, recipient: null })),
-        switchMap((iban) => operationsService.lookupByIban(iban)),
-        tapResponse({
-          next: (recipient) => patchState(store, { recipient, recipientLoading: false }),
-          error: (error: { message?: string; code?: string }) =>
-            patchState(store, {
-              recipientError: error.message || 'No account found with this IBAN',
-              recipientLoading: false,
-            }),
-        }),
-      ),
-    ),
-
-    clearRecipient: () =>
-      patchState(store, { recipient: null, recipientError: null, recipientLoading: false }),
-
-    topUp: rxMethod<{ accountId: string; amount: number }>(
-      pipe(
-        tap(() => patchState(store, { operating: true, error: null })),
-        switchMap(({ accountId, amount }) => operationsService.topUp(accountId, amount)),
-        tapResponse({
-          next: () => patchState(store, { operating: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to top up account',
-              operating: false,
-            }),
-        }),
-      ),
-    ),
-
-    transfer: rxMethod<{ fromAccountId: string; toIban: string; amount: number }>(
-      pipe(
-        tap(() => patchState(store, { operating: true, error: null })),
-        switchMap(({ fromAccountId, toIban, amount }) =>
-          operationsService.transfer(fromAccountId, toIban, amount),
+      loadAccounts: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { loading: true, error: null })),
+          switchMap(() => {
+            const user = globalStore.selectSignal(selectCurrentUser)();
+            if (!user) return of([]);
+            return accountService.getByUserId(user.id);
+          }),
+          tapResponse({
+            next: (accounts) => patchState(store, { accounts, loading: false }),
+            error: (error: any) =>
+              patchState(store, {
+                error: error.message || 'Failed to load accounts',
+                loading: false,
+              }),
+          }),
         ),
-        tapResponse({
-          next: () => patchState(store, { operating: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to transfer funds',
-              operating: false,
-            }),
-        }),
       ),
-    ),
 
-    generateReportForAccount: rxMethod<Account>(
-      pipe(
-        tap(() => patchState(store, { saving: true, error: null })),
-        switchMap((account) => {
-          const user = globalStore.selectSignal(selectCurrentUser)();
-          if (!user) return throwError(() => new Error('Not authenticated'));
+      createAccount: rxMethod<{ name: string; type: AccountType; currency: Currency }>(
+        pipe(
+          tap(() => patchState(store, { saving: true, error: null })),
+          switchMap(({ name, type, currency }) => {
+            const user = globalStore.selectSignal(selectCurrentUser)();
+            if (!user) return throwError(() => new Error('Not authenticated'));
 
-          const dateTo = Timestamp.now();
-          const dateFrom = Timestamp.fromMillis(dateTo.toMillis() - 30 * 24 * 60 * 60 * 1000);
-
-          return reportService.create({
-            userId: user.id,
-            title: `${account.name} statement`,
-            type: 'transactions',
-            status: 'generating',
-            storagePath: '',
-            filters: {
-              dateFrom,
-              dateTo,
-              accountIds: [account.id],
-              currencies: [account.currency],
+            return operationsService.createAccount({
+              name,
+              type,
+              currency,
+              balance: 0,
+              availableBalance: 0,
+              status: 'active',
+            });
+          }),
+          tapResponse({
+            next: (res) => {
+              patchState(store, { saving: false });
+              eventService.emit('account.created', { accountId: res.accountId });
             },
-          });
-        }),
-        tapResponse({
-          next: () => patchState(store, { saving: false }),
-          error: (error: any) =>
-            patchState(store, {
-              error: error.message || 'Failed to create report',
-              saving: false,
-            }),
-        }),
+            error: (error: any) =>
+              patchState(store, {
+                error: error.message || 'Failed to create account',
+                saving: false,
+              }),
+          }),
+        ),
       ),
-    ),
 
-    clearError: () => patchState(store, { error: null }),
-  })),
+      lookupByIban: rxMethod<string>(
+        pipe(
+          tap(() =>
+            patchState(store, { recipientLoading: true, recipientError: null, recipient: null }),
+          ),
+          switchMap((iban) => operationsService.lookupByIban(iban)),
+          tapResponse({
+            next: (recipient) => patchState(store, { recipient, recipientLoading: false }),
+            error: (error: { message?: string; code?: string }) =>
+              patchState(store, {
+                recipientError: error.message || 'No account found with this IBAN',
+                recipientLoading: false,
+              }),
+          }),
+        ),
+      ),
+
+      clearRecipient: () =>
+        patchState(store, { recipient: null, recipientError: null, recipientLoading: false }),
+
+      topUp: rxMethod<{ accountId: string; amount: number }>(
+        pipe(
+          tap(() => patchState(store, { operating: true, error: null })),
+          switchMap(({ accountId, amount }) => operationsService.topUp(accountId, amount)),
+          tapResponse({
+            next: ({ accountId, amount }) => {
+              patchState(store, { operating: false });
+              eventService.emit('account.topup', { accountId, amount });
+            },
+            error: (error: any) =>
+              patchState(store, {
+                error: error.message || 'Failed to top up account',
+                operating: false,
+              }),
+          }),
+        ),
+      ),
+
+      transfer: rxMethod<{ fromAccountId: string; toIban: string; amount: number }>(
+        pipe(
+          tap(() => patchState(store, { operating: true, error: null })),
+          switchMap(({ fromAccountId, toIban, amount }) =>
+            operationsService.transfer(fromAccountId, toIban, amount),
+          ),
+          tapResponse({
+            next: ({ fromAccountId, toIban, amount }) => {
+              patchState(store, { operating: false });
+              eventService.emit('account.transfer', { fromAccountId, toIban, amount });
+            },
+            error: (error: any) =>
+              patchState(store, {
+                error: error.message || 'Failed to transfer funds',
+                operating: false,
+              }),
+          }),
+        ),
+      ),
+
+      generateReportForAccount: rxMethod<Account>(
+        pipe(
+          tap(() => patchState(store, { saving: true, error: null })),
+          switchMap((account) => {
+            const user = globalStore.selectSignal(selectCurrentUser)();
+            if (!user) return throwError(() => new Error('Not authenticated'));
+
+            const dateTo = Timestamp.now();
+            const dateFrom = Timestamp.fromMillis(dateTo.toMillis() - 30 * 24 * 60 * 60 * 1000);
+
+            return reportService.create({
+              userId: user.id,
+              title: `${account.name} statement`,
+              type: 'transactions',
+              status: 'generating',
+              storagePath: '',
+              filters: {
+                dateFrom,
+                dateTo,
+                accountIds: [account.id],
+                currencies: [account.currency],
+              },
+            });
+          }),
+          tapResponse({
+            next: () => patchState(store, { saving: false }),
+            error: (error: any) =>
+              patchState(store, {
+                error: error.message || 'Failed to create report',
+                saving: false,
+              }),
+          }),
+        ),
+      ),
+
+      clearError: () => patchState(store, { error: null }),
+    }),
+  ),
 
   withHooks({
     onInit: (store) => {
       store.loadAccounts();
+
+      inject(EventService)
+        .on('account.created', 'account.topup', 'account.transfer')
+        .subscribe(() => {
+          store.loadAccounts();
+        });
     },
   }),
 );

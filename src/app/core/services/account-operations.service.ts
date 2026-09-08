@@ -41,12 +41,12 @@ export class AccountOperationsService {
     return from(call(data)).pipe(map((result) => result.data));
   }
 
-  topUp(accountId: string, amount: number): Observable<void> {
+  topUp(accountId: string, amount: number): Observable<{ accountId: string; amount: number }> {
     const call = httpsCallable<{ accountId: string; amount: number }>(
       this.functions,
       'topUpAccount',
     );
-    return from(call({ accountId, amount })).pipe(map(() => void 0));
+    return from(call({ accountId, amount })).pipe(map(() => ({ accountId, amount })));
   }
 
   lookupByIban(iban: string): Observable<AccountByIbanInfo> {
@@ -57,12 +57,18 @@ export class AccountOperationsService {
     return from(call({ iban })).pipe(map((result) => result.data));
   }
 
-  transfer(fromAccountId: string, toIban: string, amount: number): Observable<void> {
+  transfer(
+    fromAccountId: string,
+    toIban: string,
+    amount: number,
+  ): Observable<{ fromAccountId: string; toIban: string; amount: number }> {
     const call = httpsCallable<{
       fromAccountId: string;
       toIban: string;
       amount: number;
     }>(this.functions, 'transferFunds');
-    return from(call({ fromAccountId, toIban, amount })).pipe(map(() => void 0));
+    return from(call({ fromAccountId, toIban, amount })).pipe(
+      map(() => ({ fromAccountId, toIban, amount })),
+    );
   }
 }
