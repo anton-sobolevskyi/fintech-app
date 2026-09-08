@@ -243,16 +243,19 @@ export const transferFunds = onCall<TransferData>(async (request) => {
   }
 
   const destIban = normalizeIban(toIban);
-
   const sourceRef = db.collection('accounts').doc(fromAccountId);
   const destSnap = await db.collection('accounts').where('iban', '==', destIban).limit(1).get();
 
   if (destSnap.empty) {
     throw new HttpsError('not-found', 'No account found with this IBAN.');
   }
-  const destRef = destSnap.docs[0].ref;
 
-  const txRef = db.collection('transactions').doc();
+  const destRef = destSnap.docs[0].ref;
+  const destAccountId = destSnap.docs[0].id;
+
+  const outTxRef = db.collection('transactions').doc();
+  const inTxRef = db.collection('transactions').doc();
+  const transferRef = outTxRef.id; // shared reference to link the pair
   const now = FieldValue.serverTimestamp();
 
   await db.runTransaction(async (tx) => {
@@ -274,6 +277,7 @@ export const transferFunds = onCall<TransferData>(async (request) => {
       iban?: string;
     };
     const destination = dest.data() as {
+      userId?: string;
       currency?: string;
       status?: string;
       name?: string;
@@ -292,11 +296,13 @@ export const transferFunds = onCall<TransferData>(async (request) => {
     if (source.currency !== destination.currency) {
       throw new HttpsError('failed-precondition', 'Currency mismatch between accounts.');
     }
-    const balance = source.balance ?? 0;
-    if (balance < amount) {
+    if ((source.balance ?? 0) < amount) {
       throw new HttpsError('failed-precondition', 'Insufficient funds.');
     }
 
+    const currency = source.currency ?? 'UAH';
+
+    // Balances
     tx.update(sourceRef, {
       balance: FieldValue.increment(-amount),
       availableBalance: FieldValue.increment(-amount),
@@ -308,20 +314,42 @@ export const transferFunds = onCall<TransferData>(async (request) => {
       updatedAt: now,
     });
 
-    tx.set(txRef, {
+    // 1) Outgoing — visible on source account
+    tx.set(outTxRef, {
       userId: uid,
       accountId: fromAccountId,
-      type: 'transfer',
+      type: 'debit',
       status: 'completed',
       amount,
-      currency: source.currency ?? 'UAH',
+      currency,
       description: `Transfer to ${destination.name ?? destIban}`,
       counterpartyName: destination.name ?? '',
       counterpartyIban: destIban,
+      reference: transferRef,
+      createdAt: now,
+      processedAt: now,
+    });
+
+    // 2) Incoming — visible on destination account
+    tx.set(inTxRef, {
+      userId: destination.userId ?? '',
+      accountId: destAccountId,
+      type: 'credit',
+      status: 'completed',
+      amount,
+      currency,
+      description: `Transfer from ${source.name ?? source.iban ?? 'account'}`,
+      counterpartyName: source.name ?? '',
+      counterpartyIban: source.iban ?? '',
+      reference: transferRef,
       createdAt: now,
       processedAt: now,
     });
   });
 
-  return { success: true };
+  return {
+    success: true,
+    outTransactionId: outTxRef.id,
+    inTransactionId: inTxRef.id,
+  };
 });
