@@ -1,5 +1,12 @@
 import { computed, inject } from '@angular/core';
-import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
+import {
+  signalStore,
+  withState,
+  withMethods,
+  withComputed,
+  patchState,
+  withHooks,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, forkJoin, of, take } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
@@ -8,6 +15,7 @@ import { Account, Currency, Transaction } from '@core/models';
 import { AccountService } from '@core/services/account.service';
 import { TransactionService } from '@core/services/transaction.service';
 import { selectCurrentUser } from '@core/store/auth/auth.selectors';
+import { EventService } from '@core/services/event.service';
 
 interface DashboardState {
   accounts: Account[];
@@ -40,9 +48,11 @@ export const DashboardStore = signalStore(
       return Array.from(map.entries()).map(([currency, balance]) => ({ currency, balance }));
     }),
 
-    recentTransactions: computed(() =>
-      [...transactions()].sort((a, b) => txDate(b).getTime() - txDate(a).getTime()).slice(0, 10),
-    ),
+    recentTransactions: computed(() => {
+      const data = transactions();
+
+      return [...data].sort((a, b) => txDate(b).getTime() - txDate(a).getTime()).slice(0, 10);
+    }),
 
     cashFlowChart: computed(() => {
       const days: { label: string; income: number; expense: number }[] = [];
@@ -132,4 +142,16 @@ export const DashboardStore = signalStore(
       ),
     }),
   ),
+
+  withHooks({
+    onInit: (store) => {
+      store.loadDashboard();
+
+      inject(EventService)
+        .on('account.created', 'account.topup', 'account.transfer')
+        .subscribe(() => {
+          store.loadDashboard();
+        });
+    },
+  }),
 );

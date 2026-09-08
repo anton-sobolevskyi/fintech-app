@@ -35,10 +35,6 @@ export class Dashboard implements OnDestroy {
     });
   }
 
-  ngOnInit(): void {
-    this.store.loadDashboard();
-  }
-
   ngOnDestroy(): void {
     this.chart?.destroy();
   }
