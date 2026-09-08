@@ -74,20 +74,4 @@ export const authReducer = createReducer(
     loading: false,
     error,
   })),
-
-  on(AuthActions.updatePreferencesSuccess, (state, { theme, language }) => {
-    if (!state.user) return state;
-
-    return {
-      ...state,
-      user: {
-        ...state.user,
-        preferences: {
-          ...state.user.preferences,
-          ...(theme && { theme }),
-          ...(language && { language }),
-        },
-      },
-    };
-  }),
 );

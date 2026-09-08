@@ -15,6 +15,12 @@ export const uiReducer = createReducer(
     language,
   })),
 
+  on(UiActions.preferencesLoaded, (state, { theme, language }) => ({
+    ...state,
+    theme,
+    language,
+  })),
+
   on(UiActions.setGlobalLoading, (state, { loading }) => ({
     ...state,
     globalLoading: loading,

@@ -35,6 +35,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // User Preferences (doc id = userId)
+    match /userPreferences/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+
     // Accounts
     match /accounts/{accountId} {
       allow read: if isAuthenticated() &&

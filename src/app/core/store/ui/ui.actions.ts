@@ -6,6 +6,7 @@ export const UiActions = createActionGroup({
   events: {
     'Set Theme': props<{ theme: Theme }>(),
     'Set Language': props<{ language: Locale }>(),
+    'Preferences Loaded': props<{ theme: Theme; language: Locale }>(),
     'Set Global Loading': props<{ loading: boolean }>(),
   },
 });

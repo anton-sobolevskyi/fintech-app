@@ -10,7 +10,7 @@ import {
 import { Observable, from, map, switchMap, of, throwError } from 'rxjs';
 import { doc, getDoc, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE } from '../firebase';
-import { Theme, User } from '../models';
+import { User } from '../models';
 
 @Service()
 export class AuthService {
@@ -34,10 +34,6 @@ export class AuthService {
           displayName,
           role: 'client',
           createdAt: serverTimestamp() as Timestamp,
-          preferences: {
-            theme: 'light',
-            language: 'uk',
-          },
         };
 
         return {
@@ -50,16 +46,6 @@ export class AuthService {
 
   logout(): Observable<void> {
     return from(signOut(this.auth));
-  }
-
-  updatePreferences(uid: string, prefs: { theme?: Theme; language?: string }): Observable<void> {
-    const userRef = doc(this.firestore, 'users', uid);
-
-    const updateData: Record<string, string> = {};
-    if (prefs.theme) updateData['preferences.theme'] = prefs.theme;
-    if (prefs.language) updateData['preferences.language'] = prefs.language;
-
-    return from(updateDoc(userRef, updateData));
   }
 
   updateAuthPhoto(photoURL: string): Observable<void> {
