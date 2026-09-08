@@ -97,7 +97,6 @@ export abstract class FirestoreService<T extends FirestoreEntity> {
 
   create(data: Omit<T, 'id' | 'createdAt'>): Observable<string> {
     const payload = { ...data, createdAt: serverTimestamp() };
-    console.log('Creating document in collection:', this.collectionName, 'with payload:', payload);
     return from(addDoc(this.collectionRef, payload).then((ref) => ref.id));
   }
 
@@ -107,7 +106,8 @@ export abstract class FirestoreService<T extends FirestoreEntity> {
   }
 
   update(id: string, data: Partial<Omit<T, 'id'>>): Observable<void> {
-    return from(updateDoc(this.docRef(id), { ...data, updatedAt: serverTimestamp() } as any));
+    const updateData: Record<string, unknown> = { ...data, updatedAt: serverTimestamp() };
+    return from(updateDoc(this.docRef(id), updateData));
   }
 
   delete(id: string): Observable<string> {

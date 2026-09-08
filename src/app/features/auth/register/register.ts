@@ -76,10 +76,7 @@ export class Register {
 
           this.store.dispatch(AuthActions.register(rest));
 
-          return {
-            kind: 'serverError',
-            message: 'Failed to submit form',
-          };
+          return null;
         },
       },
     },

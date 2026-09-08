@@ -5,7 +5,7 @@ import { pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
 import { Timestamp } from 'firebase/firestore';
-import { Report, ReportType, ReportStatus } from '../../core/models';
+import { Currency, Report, ReportType, ReportStatus } from '../../core/models';
 import { ReportService } from '../../core/services/report.service';
 import { selectCurrentUser } from '../../core/store/auth/auth.selectors';
 
@@ -21,7 +21,7 @@ export interface CreateReportPayload {
   dateFrom: string;
   dateTo: string;
   accountIds: string[];
-  currencies: string[];
+  currencies: Currency[];
 }
 
 interface ReportsState {
@@ -107,13 +107,14 @@ export const ReportsStore = signalStore(
             title: payload.title,
             type: payload.type,
             status: 'generating',
+            storagePath: '',
             filters: {
               dateFrom,
               dateTo,
               accountIds: payload.accountIds?.length ? payload.accountIds : undefined,
-              currencies: payload.currencies?.length ? (payload.currencies as any) : undefined,
+              currencies: payload.currencies?.length ? payload.currencies : undefined,
             },
-          } as any);
+          });
         }),
         tapResponse({
           next: () => patchState(store, { saving: false }),

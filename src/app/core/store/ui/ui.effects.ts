@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { AuthActions } from '../auth/auth.actions';
 import { UiActions } from './ui.actions';
@@ -9,6 +10,7 @@ import { tap } from 'rxjs';
 export class UiEffects {
   private actions$ = inject(Actions);
   private store = inject(Store);
+  private platformId = inject(PLATFORM_ID);
 
   applyPreferences$ = createEffect(
     () =>
@@ -32,6 +34,8 @@ export class UiEffects {
       this.actions$.pipe(
         ofType(UiActions.setTheme),
         tap(({ theme }) => {
+          if (!isPlatformBrowser(this.platformId)) return;
+
           const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
           if (theme === 'system' && mediaQuery.matches) {
@@ -53,6 +57,8 @@ export class UiEffects {
       this.actions$.pipe(
         ofType(UiActions.setLanguage),
         tap(({ language }) => {
+          if (!isPlatformBrowser(this.platformId)) return;
+
           document.documentElement.lang = language;
           this.store.dispatch(AuthActions.updatePreferences({ language }));
         }),

@@ -28,7 +28,7 @@ const initialState: DashboardState = {
 
 function txDate(tx: Transaction): Date {
   if (!tx.createdAt) return new Date(0);
-  return tx.createdAt.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt as any);
+  return tx.createdAt.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt.seconds * 1000);
 }
 
 export const DashboardStore = signalStore(

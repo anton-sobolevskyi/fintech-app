@@ -8,6 +8,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { PIcon } from '@primeicons/angular';
 import { ConfirmationService } from 'primeng/api';
 import { CloudType, DataSource, SourceStatus } from '@core/models';
+import { DataSourceFormModel } from '../data-source-form-dialog/data-source-form-dialog';
+import { Timestamp } from 'firebase/firestore';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DataSourceFormDialog } from '../data-source-form-dialog/data-source-form-dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -68,7 +70,7 @@ export class DataSources {
     this.showDialog.set(true);
   }
 
-  onSave(data: any): void {
+  onSave(data: DataSourceFormModel): void {
     const editing = this.editingSource();
     if (editing) {
       this.store.updateSource({ id: editing.id, data });
@@ -128,9 +130,9 @@ export class DataSources {
     return type === 'private' ? 'secondary' : 'info';
   }
 
-  formatDate(timestamp: any): string {
+  formatDate(timestamp: Timestamp | Date | undefined): string {
     if (!timestamp) return '—';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
     return new Intl.DateTimeFormat('uk-UA', {
       day: '2-digit',
       month: 'short',

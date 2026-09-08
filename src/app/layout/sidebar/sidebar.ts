@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { SidebarModule } from 'primeng/sidebar';
 import { PIcon } from '@primeicons/angular';
@@ -17,7 +17,7 @@ export class Sidebar {
   private store = inject(Store);
   currentUser = this.store.selectSignal(selectCurrentUser);
 
-  navItems = sidebarNavigation(this.currentUser()?.role ?? 'client');
+  navItems = computed(() => sidebarNavigation(this.currentUser()?.role ?? 'client'));
 
-  activeNivItem = signal(this.navItems[0]);
+  activeNavItem = signal(this.navItems()[0]);
 }

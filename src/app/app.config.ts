@@ -15,6 +15,7 @@ import { environment } from '../environments/environment';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideClientHydration(),
     provideRouter(routes),
     provideStore(coreReducer),
     provideEffects([AuthEffects, UiEffects]),

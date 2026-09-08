@@ -57,7 +57,7 @@ export class AuthService {
   updatePreferences(uid: string, prefs: { theme?: Theme; language?: string }): Observable<void> {
     const userRef = doc(this.firestore, 'users', uid);
 
-    const updateData: any = {};
+    const updateData: Record<string, string> = {};
     if (prefs.theme) updateData['preferences.theme'] = prefs.theme;
     if (prefs.language) updateData['preferences.language'] = prefs.language;
 

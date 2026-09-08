@@ -2,14 +2,14 @@
   <p-card class="max-w-sm w-full" header="Create Account" subheader="Join BankDataHub">
     <form id="register-form" [formRoot]="registerForm" class="space-y-2 my-4">
       <div class="flex flex-col gap-2">
-        <label pLabel for="email">Full Name</label>
+        <label pLabel for="full-name">Full Name</label>
         <input
           pInputText
           id="full-name"
           [formField]="registerForm.displayName"
           type="text"
           class="w-full"
-          autocomplete="email"
+          autocomplete="name"
         />
 
         @if (registerForm.displayName().touched() && registerForm.displayName().invalid()) {
@@ -45,7 +45,7 @@
           [formField]="registerForm.password"
           type="password"
           class="w-full"
-          autocomplete="current-password"
+          autocomplete="new-password"
         />
 
         @if (registerForm.password().touched() && registerForm.password().invalid()) {
@@ -56,14 +56,14 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <label pLabel for="password">Confirm Password</label>
+        <label pLabel for="confirm-password">Confirm Password</label>
         <input
           pInputText
-          id="current-password"
+          id="confirm-password"
           [formField]="registerForm.confirmPassword"
           type="password"
           class="w-full"
-          autocomplete="current-password"
+          autocomplete="new-password"
         />
 
         @if (registerForm.confirmPassword().touched() && registerForm.confirmPassword().invalid()) {

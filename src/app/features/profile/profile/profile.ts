@@ -31,7 +31,6 @@ interface ProfileFormModel {
 
 @Component({
   selector: 'app-profile',
-  standalone: true,
   imports: [
     CardModule,
     FormRoot,

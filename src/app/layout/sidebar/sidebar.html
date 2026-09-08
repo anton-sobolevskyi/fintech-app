@@ -2,16 +2,16 @@
   <p-sidebar-group-label>Navigation</p-sidebar-group-label>
   <p-sidebar-group-content>
     <p-sidebar-menu>
-      @for (item of navItems; track $index) {
+      @for (item of navItems(); track $index) {
         @if (item.visible !== false) {
           <p-sidebar-menu-item>
             <a
               pSidebarMenuButton
-              [isActive]="activeNivItem() === item"
+              [isActive]="activeNavItem() === item"
               [routerLink]="item.routerLink"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
-              (isActiveChange)="$event ? activeNivItem.set(item) : null"
+              (isActiveChange)="$event ? activeNavItem.set(item) : null"
             >
               @if (item.icon) {
                 <svg [pIcon]="item.icon"></svg>

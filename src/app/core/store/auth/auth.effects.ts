@@ -87,7 +87,11 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.currentUser$().pipe(
           map((user) => AuthActions.loadUserSuccess({ user })),
-          tap(() => this.router.navigate(['/'])),
+          tap(({ user }) => {
+            if (user) {
+              this.router.navigate(['/']);
+            }
+          }),
           catchError((error) => of(AuthActions.loadUserFailure({ error: error.message }))),
         ),
       ),

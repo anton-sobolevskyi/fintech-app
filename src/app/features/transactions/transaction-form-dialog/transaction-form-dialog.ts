@@ -17,7 +17,7 @@ import {
   Currency,
 } from '../../../core/models';
 
-interface TransactionFormModel {
+export interface TransactionFormModel {
   accountId: string;
   type: TransactionType;
   status: TransactionStatus;
@@ -32,7 +32,6 @@ interface TransactionFormModel {
 
 @Component({
   selector: 'app-transaction-form-dialog',
-  standalone: true,
   imports: [
     DialogModule,
     FormRoot,

@@ -194,7 +194,9 @@ export const TransactionsStore = signalStore(
           ),
         ),
 
-        createTransaction: rxMethod<Omit<Transaction, 'id' | 'createdAt' | 'processedAt'>>(
+        createTransaction: rxMethod<
+          Omit<Transaction, 'id' | 'createdAt' | 'processedAt' | 'userId'>
+        >(
           pipe(
             tap(() => patchState(store, { saving: true, error: null })),
             switchMap((data) => {

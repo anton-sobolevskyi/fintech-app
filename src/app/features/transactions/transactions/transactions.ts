@@ -14,7 +14,9 @@ import { TransactionFormDialog } from '../transaction-form-dialog/transaction-fo
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { Currency, Transaction, TransactionStatus, TransactionType } from '@core/models';
+import { TransactionFormModel } from '../transaction-form-dialog/transaction-form-dialog';
 import { ConfirmationService } from 'primeng/api';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   imports: [
@@ -109,9 +111,9 @@ export class Transactions {
     }).format(value);
   }
 
-  formatDate(timestamp: any): string {
+  formatDate(timestamp: Timestamp | Date | undefined): string {
     if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
     return new Intl.DateTimeFormat('uk-UA', {
       day: '2-digit',
       month: 'short',
@@ -150,7 +152,7 @@ export class Transactions {
     this.showDialog.set(true);
   }
 
-  onSave(data: any): void {
+  onSave(data: TransactionFormModel): void {
     const editing = this.editingTx();
     if (editing) {
       this.store.updateTransaction({ id: editing.id, data });

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ReportsStore, CreateReportPayload } from '../reports.store';
 import { ReportFormDialog } from '../report-form-dialog/report-form-dialog';
 import { Report, ReportType, ReportStatus } from '../../../core/models';
+import { Timestamp } from 'firebase/firestore';
 
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -17,7 +18,6 @@ import { PIcon } from '@primeicons/angular';
 
 @Component({
   selector: 'app-reports',
-  standalone: true,
   imports: [
     FormsModule,
     CardModule,
@@ -114,9 +114,9 @@ export class Reports {
     }
   }
 
-  formatDate(timestamp: any): string {
+  formatDate(timestamp: Timestamp | Date | undefined): string {
     if (!timestamp) return '—';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
     return new Intl.DateTimeFormat('uk-UA', {
       day: '2-digit',
       month: 'short',

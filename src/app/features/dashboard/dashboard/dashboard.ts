@@ -2,6 +2,7 @@ import { Component, effect, ElementRef, inject, viewChild, OnDestroy } from '@an
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Timestamp } from 'firebase/firestore';
 import { DashboardStore } from '../dashboard.store';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -92,9 +93,9 @@ export class Dashboard implements OnDestroy {
     }).format(value || 0);
   }
 
-  formatDate(timestamp: any): string {
+  formatDate(timestamp: Timestamp | Date | undefined): string {
     if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
     return new Intl.DateTimeFormat('uk-UA', {
       day: '2-digit',
       month: 'short',

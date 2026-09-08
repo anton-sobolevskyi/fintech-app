@@ -8,7 +8,7 @@ import { LabelModule } from 'primeng/label';
 import { MessageModule } from 'primeng/message';
 import { DataSource, CloudType, SourceStatus } from '../../../core/models';
 
-interface DataSourceFormModel {
+export interface DataSourceFormModel {
   name: string;
   cloudType: CloudType;
   status: SourceStatus;
@@ -20,7 +20,6 @@ interface DataSourceFormModel {
 
 @Component({
   selector: 'app-data-source-form-dialog',
-  standalone: true,
   imports: [
     DialogModule,
     FormRoot,
@@ -100,8 +99,8 @@ export class DataSourceFormDialog {
           name: s.name,
           cloudType: s.cloudType,
           status: s.status,
-          latencyMs: s.latencyMs,
-          errorRate: s.errorRate,
+          latencyMs: s.latencyMs ?? 0,
+          errorRate: s.errorRate ?? 0,
           region: s.region,
           description: s.description ?? '',
         });

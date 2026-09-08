@@ -93,8 +93,8 @@ export const DataSourcesStore = signalStore(
         switchMap((data) =>
           dataSourceService.create({
             ...data,
-            lastSyncAt: serverTimestamp() as any,
-          } as any),
+            lastSyncAt: serverTimestamp(),
+          }),
         ),
         tapResponse({
           next: () => patchState(store, { saving: false }),
@@ -156,7 +156,7 @@ export const DataSourcesStore = signalStore(
             latencyMs,
             errorRate,
             status,
-            lastSyncAt: serverTimestamp() as any,
+            lastSyncAt: serverTimestamp(),
           });
         }),
         tapResponse({

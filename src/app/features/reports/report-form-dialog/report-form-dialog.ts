@@ -10,7 +10,7 @@ import { MessageModule } from 'primeng/message';
 import { AccountService } from '../../../core/services/account.service';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../../core/store/auth/auth.selectors';
-import { Account, ReportType } from '../../../core/models';
+import { Account, Currency, ReportType } from '../../../core/models';
 import { CreateReportPayload } from '../reports.store';
 
 interface ReportFormModel {
@@ -19,12 +19,11 @@ interface ReportFormModel {
   dateFrom: string;
   dateTo: string;
   accountIds: string[];
-  currencies: string[];
+  currencies: Currency[];
 }
 
 @Component({
   selector: 'app-report-form-dialog',
-  standalone: true,
   imports: [
     DialogModule,
     FormRoot,

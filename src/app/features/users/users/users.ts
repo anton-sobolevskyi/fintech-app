@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UsersStore } from '../users.store';
 import { User, UserRole } from '../../../core/models';
+import { Timestamp } from 'firebase/firestore';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../../core/store/auth/auth.selectors';
 
@@ -17,7 +18,6 @@ import { PIcon } from '@primeicons/angular';
 
 @Component({
   selector: 'app-users',
-  standalone: true,
   imports: [
     FormsModule,
     CardModule,
@@ -99,9 +99,9 @@ export class Users {
     return (user.displayName || user.email || '?').charAt(0).toUpperCase();
   }
 
-  formatDate(timestamp: any): string {
+  formatDate(timestamp: Timestamp | Date | undefined): string {
     if (!timestamp) return '—';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
     return new Intl.DateTimeFormat('uk-UA', {
       day: '2-digit',
       month: 'short',

@@ -7,7 +7,7 @@ import { Sidebar } from '../sidebar/sidebar';
 import { Store } from '@ngrx/store';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
-import { filter, fromEvent, map } from 'rxjs';
+import { filter, fromEvent, map, of } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { isMobileQuery } from '@core/utils';
 import { selectCurrentUser } from '@core/store/auth';
@@ -37,8 +37,10 @@ export class MainLayout {
   user = this.store.selectSignal(selectCurrentUser);
 
   isMobile = toSignal(
-    fromEvent<MediaQueryListEvent>(isMobileQuery, 'change').pipe(map((event) => event.matches)),
-    { initialValue: isMobileQuery.matches },
+    isMobileQuery
+      ? fromEvent<MediaQueryListEvent>(isMobileQuery, 'change').pipe(map((event) => event.matches))
+      : of(false),
+    { initialValue: isMobileQuery ? isMobileQuery.matches : false },
   );
   isNavigationEnd = toSignal(this.router.events.pipe(filter((e) => e instanceof NavigationEnd)));
   open = linkedSignal<boolean, boolean>({

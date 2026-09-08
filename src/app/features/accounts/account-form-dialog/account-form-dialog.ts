@@ -14,7 +14,6 @@ interface AccountFormModel {
 
 @Component({
   selector: 'app-account-form-dialog',
-  standalone: true,
   imports: [
     DialogModule,
     FormRoot,
@@ -30,7 +29,6 @@ export class AccountFormDialog {
   private store = inject(AccountsStore);
 
   visible = input(false);
-
 
   visibleChange = output<boolean>();
 

@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Sidebar } from './sidebar';
+import { provideMockStore } from '@ngrx/store/testing';
+import { initialAuthState } from '@core/store/auth/auth.models';
 
 describe('Sidebar', () => {
   let component: Sidebar;
@@ -8,6 +11,10 @@ describe('Sidebar', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Sidebar],
+      providers: [
+        provideRouter([]),
+        provideMockStore({ initialState: { auth: initialAuthState } }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Sidebar);
