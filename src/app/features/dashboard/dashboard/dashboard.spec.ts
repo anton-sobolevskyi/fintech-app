@@ -5,7 +5,6 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { initialAuthState } from '@core/store/auth/auth.models';
 import { AccountService } from '@core/services/account.service';
 import { TransactionService } from '@core/services/transaction.service';
-import { DataSourceService } from '@core/services/data-source.service';
 import { of } from 'rxjs';
 
 describe('Dashboard', () => {
@@ -20,7 +19,6 @@ describe('Dashboard', () => {
         provideMockStore({ initialState: { auth: initialAuthState } }),
         { provide: AccountService, useValue: { getByUserId: () => of([]) } },
         { provide: TransactionService, useValue: { getByUserId: () => of([]) } },
-        { provide: DataSourceService, useValue: { getAll: () => of([]) } },
       ],
     }).compileComponents();
 

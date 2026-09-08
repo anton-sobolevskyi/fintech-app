@@ -1,180 +1,90 @@
 <div class="space-y-6">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Dashboard</h1>
-      <p class="text-surface-500 mt-1 mb-0">Overview of your financial activity</p>
-    </div>
-    <div class="flex gap-2">
-      <button pButton severity="secondary" [outlined]="true" type="button">
-        <svg pIcon="download"></svg>
-        Export
-      </button>
-      <a pButton routerLink="/transactions">
-        <svg pIcon="plus"></svg>
-        New Transfer
-      </a>
-    </div>
+  <div>
+    <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Dashboard</h1>
+    <p class="text-surface-500 mt-1 mb-0">Overview of your financial activity</p>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-    <p-card>
-      <div class="flex items-start justify-between">
-        <div>
-          <div class="text-surface-500 text-sm">Total Balance</div>
-          <div class="text-2xl font-bold mt-2">
-            @if (store.loading()) {
-              <p-skeleton width="8rem" height="1.75rem" />
-            } @else {
-              {{ formatCurrency(store.totalBalance()) }}
-            }
-          </div>
-        </div>
-        <div class="w-11 h-11 rounded-xl bg-blue-500 text-white flex items-center justify-center">
-          <i class="pi pi-wallet text-lg"></i>
-        </div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <div class="flex items-start justify-between">
-        <div>
-          <div class="text-surface-500 text-sm">Active Accounts</div>
-          <div class="text-2xl font-bold mt-2">
-            @if (store.loading()) {
-              <p-skeleton width="3rem" height="1.75rem" />
-            } @else {
-              {{ store.activeAccounts() }}
-            }
-          </div>
-        </div>
-        <div
-          class="w-11 h-11 rounded-xl bg-emerald-500 text-white flex items-center justify-center"
-        >
-          <i class="pi pi-credit-card text-lg"></i>
-        </div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <div class="flex items-start justify-between">
-        <div>
-          <div class="text-surface-500 text-sm">Transactions Today</div>
-          <div class="text-2xl font-bold mt-2">
-            @if (store.loading()) {
-              <p-skeleton width="3rem" height="1.75rem" />
-            } @else {
-              {{ store.todayTransactionsCount() }}
-            }
-          </div>
-        </div>
-        <div class="w-11 h-11 rounded-xl bg-violet-500 text-white flex items-center justify-center">
-          <i class="pi pi-arrow-right-arrow-left text-lg"></i>
-        </div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <div class="flex items-start justify-between">
-        <div>
-          <div class="text-surface-500 text-sm">Pending</div>
-          <div class="text-2xl font-bold mt-2">
-            @if (store.loading()) {
-              <p-skeleton width="3rem" height="1.75rem" />
-            } @else {
-              {{ store.pendingCount() }}
-            }
-          </div>
-        </div>
-        <div class="w-11 h-11 rounded-xl bg-amber-500 text-white flex items-center justify-center">
-          <i class="pi pi-clock text-lg"></i>
-        </div>
-      </div>
-    </p-card>
-  </div>
-
-  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-    <div class="xl:col-span-2">
-      <p-card>
-        <ng-template pTemplate="title">Cash Flow</ng-template>
-        <ng-template pTemplate="subtitle">Income vs Expenses (last 7 days)</ng-template>
-
-        <div class="h-80 relative">
-          @if (store.loading()) {
-            <p-skeleton height="100%" />
-          } @else {
-            <canvas #cashFlowChart></canvas>
-          }
-        </div>
-      </p-card>
+  @if (store.loading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      @for (i of [1, 2, 3]; track i) {
+        <p-card>
+          <p-skeleton width="6rem" height="1.25rem" />
+          <p-skeleton width="8rem" height="1.75rem" styleClass="mt-2" />
+        </p-card>
+      }
     </div>
-
-    <p-card styleClass="h-full">
-      <ng-template pTemplate="title">Recent Activity</ng-template>
-
-      <div class="space-y-4 mt-2">
-        @if (store.loading()) {
-          @for (i of [1, 2, 3, 4]; track i) {
-            <p-skeleton height="2.5rem" styleClass="mb-3" />
-          }
-        } @else {
-          @for (tx of store.recentTransactions(); track tx.id) {
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="font-medium truncate">{{ tx.description }}</div>
-                <div class="text-sm text-surface-500">{{ formatDate(tx.createdAt) }}</div>
-              </div>
-              <div class="font-semibold whitespace-nowrap" [class]="getTypeClass(tx.type)">
-                {{ tx.type === 'credit' ? '+' : '-' }}
-                {{ formatCurrency(tx.amount, tx.currency) }}
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      @for (item of store.balancesByCurrency(); track item.currency) {
+        <p-card>
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="text-surface-500 text-sm">Total Balance ({{ item.currency }})</div>
+              <div class="text-2xl font-bold mt-2">
+                {{ formatCurrency(item.balance, item.currency) }}
               </div>
             </div>
-          } @empty {
-            <div class="text-surface-500 text-center py-6">No recent transactions</div>
-          }
-        }
-      </div>
+            <div
+              class="w-11 h-11 rounded-xl bg-blue-500 text-white flex items-center justify-center"
+            >
+              <i class="pi pi-wallet text-lg"></i>
+            </div>
+          </div>
+        </p-card>
+      } @empty {
+        <p-card>
+          <div class="text-surface-500 text-center py-4">No accounts found</div>
+        </p-card>
+      }
+    </div>
+  }
 
-      <div class="mt-6">
-        <a pButton [text]="true" class="w-full justify-center" routerLink="/transactions">
-          View all transactions
-          <svg pIcon="arrow-right"></svg>
-        </a>
-      </div>
-    </p-card>
-  </div>
+  <p-card>
+    <ng-template pTemplate="title">Cash Flow</ng-template>
+    <ng-template pTemplate="subtitle">Income vs Expenses (last 7 days)</ng-template>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <p-card>
-      <div class="text-surface-500 text-sm">Total Income</div>
-      <div class="text-xl font-bold text-emerald-500 mt-1">
-        @if (store.loading()) {
-          <p-skeleton width="6rem" height="1.5rem" />
-        } @else {
-          {{ formatCurrency(store.totalIncome()) }}
+    <div class="h-80 relative">
+      @if (store.loading()) {
+        <p-skeleton height="100%" />
+      } @else {
+        <canvas #cashFlowChart></canvas>
+      }
+    </div>
+  </p-card>
+
+  <p-card>
+    <ng-template pTemplate="title">Recent Transactions</ng-template>
+
+    <div class="space-y-4 mt-2">
+      @if (store.loading()) {
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <p-skeleton height="2.5rem" styleClass="mb-3" />
         }
-      </div>
-    </p-card>
-    <p-card>
-      <div class="text-surface-500 text-sm">Total Expenses</div>
-      <div class="text-xl font-bold text-red-500 mt-1">
-        @if (store.loading()) {
-          <p-skeleton width="6rem" height="1.5rem" />
-        } @else {
-          {{ formatCurrency(store.totalExpense()) }}
+      } @else {
+        @for (tx of store.recentTransactions(); track tx.id) {
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-medium truncate">{{ tx.description }}</div>
+              <div class="text-sm text-surface-500">{{ formatDate(tx.createdAt) }}</div>
+            </div>
+            <div class="font-semibold whitespace-nowrap" [class]="getTypeClass(tx.type)">
+              {{ tx.type === 'credit' ? '+' : '-' }}
+              {{ formatCurrency(tx.amount, tx.currency) }}
+            </div>
+          </div>
+        } @empty {
+          <div class="text-surface-500 text-center py-6">No recent transactions</div>
         }
-      </div>
-    </p-card>
-    <p-card>
-      <div class="text-surface-500 text-sm">Healthy Data Sources</div>
-      <div class="text-xl font-bold mt-1">
-        @if (store.loading()) {
-          <p-skeleton width="4rem" height="1.5rem" />
-        } @else {
-          {{ store.healthySources() }} / {{ store.sources().length }}
-        }
-      </div>
-    </p-card>
-  </div>
+      }
+    </div>
+
+    <div class="mt-6">
+      <a pButton [text]="true" class="w-full justify-center" routerLink="/transactions">
+        View all transactions
+        <svg pIcon="arrow-right"></svg>
+      </a>
+    </div>
+  </p-card>
 
   @if (store.error()) {
     <p-card>

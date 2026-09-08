@@ -4,16 +4,14 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, forkJoin, of, take } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
-import { Account, DataSource, Transaction } from '@core/models';
+import { Account, Currency, Transaction } from '@core/models';
 import { AccountService } from '@core/services/account.service';
-import { DataSourceService } from '@core/services/data-source.service';
 import { TransactionService } from '@core/services/transaction.service';
 import { selectCurrentUser } from '@core/store/auth/auth.selectors';
 
 interface DashboardState {
   accounts: Account[];
   transactions: Transaction[];
-  sources: DataSource[];
   loading: boolean;
   error: string | null;
 }
@@ -21,7 +19,6 @@ interface DashboardState {
 const initialState: DashboardState = {
   accounts: [],
   transactions: [],
-  sources: [],
   loading: false,
   error: null,
 };
@@ -34,28 +31,17 @@ function txDate(tx: Transaction): Date {
 export const DashboardStore = signalStore(
   withState(initialState),
 
-  withComputed(({ accounts, transactions, sources }) => ({
-    totalBalance: computed(() => accounts().reduce((sum, acc) => sum + (acc.balance || 0), 0)),
-    activeAccounts: computed(() => accounts().filter((a) => a.status === 'active').length),
-    todayTransactionsCount: computed(() => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return transactions().filter((tx) => txDate(tx) >= today).length;
+  withComputed(({ accounts, transactions }) => ({
+    balancesByCurrency: computed(() => {
+      const map = new Map<Currency, number>();
+      for (const acc of accounts()) {
+        map.set(acc.currency, (map.get(acc.currency) || 0) + (acc.balance || 0));
+      }
+      return Array.from(map.entries()).map(([currency, balance]) => ({ currency, balance }));
     }),
-    pendingCount: computed(() => transactions().filter((t) => t.status === 'pending').length),
-    totalIncome: computed(() =>
-      transactions()
-        .filter((t) => t.type === 'credit')
-        .reduce((sum, t) => sum + t.amount, 0),
-    ),
-    totalExpense: computed(() =>
-      transactions()
-        .filter((t) => t.type === 'debit' || t.type === 'fee')
-        .reduce((sum, t) => sum + t.amount, 0),
-    ),
-    healthySources: computed(() => sources().filter((s) => s.status === 'healthy').length),
+
     recentTransactions: computed(() =>
-      [...transactions()].sort((a, b) => txDate(b).getTime() - txDate(a).getTime()).slice(0, 6),
+      [...transactions()].sort((a, b) => txDate(b).getTime() - txDate(a).getTime()).slice(0, 10),
     ),
 
     cashFlowChart: computed(() => {
@@ -113,7 +99,6 @@ export const DashboardStore = signalStore(
       store,
       accountService = inject(AccountService),
       transactionService = inject(TransactionService),
-      dataSourceService = inject(DataSourceService),
       globalStore = inject(Store),
     ) => ({
       loadDashboard: rxMethod<void>(
@@ -122,23 +107,19 @@ export const DashboardStore = signalStore(
           switchMap(() => {
             const user = globalStore.selectSignal(selectCurrentUser)();
             if (!user) {
-              return of({ accounts: [], transactions: [], sources: [] });
+              return of({ accounts: [], transactions: [] });
             }
 
             return forkJoin({
               accounts: accountService.getByUserId(user.id).pipe(take(1)),
               transactions: transactionService.getByUserId(user.id, 100).pipe(take(1)),
-              sources: dataSourceService.getAllSources
-                ? dataSourceService.getAllSources().pipe(take(1))
-                : dataSourceService.getAll().pipe(take(1)),
             });
           }),
           tapResponse({
-            next: ({ accounts, transactions, sources }) =>
+            next: ({ accounts, transactions }) =>
               patchState(store, {
                 accounts,
                 transactions,
-                sources,
                 loading: false,
               }),
             error: (err: any) =>
