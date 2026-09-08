@@ -37,10 +37,14 @@ export class AccountFormDialog {
 
   visibleChange = output<boolean>();
 
-  private model = signal<AccountFormModel>({ name: '', type: 'checking', currency: 'UAH' });
-
   saving = this.store.saving;
   availableCurrencies = this.store.availableCurrencies;
+
+  protected model = signal<AccountFormModel>({
+    name: '',
+    type: 'checking',
+    currency: 'USD',
+  });
 
   protected accountTypeOptions = accountTypeOptions;
 

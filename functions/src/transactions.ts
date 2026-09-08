@@ -218,6 +218,7 @@ export const lookupAccountByIban = onCall<LookupData>(async (request) => {
     status: account.status ?? '',
     isOwn: account.userId === uid,
     ownerName: maskName(ownerName),
+    iban: iban,
   };
 });
 

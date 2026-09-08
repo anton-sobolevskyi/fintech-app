@@ -68,12 +68,13 @@
                 [text]="true"
                 [rounded]="true"
                 severity="secondary"
-                icon="pi pi-file-export"
                 pTooltip="Generate report"
                 ariaLabel="Generate report for {{ account.name }}"
                 [disabled]="store.saving()"
                 (click)="generateReport(account)"
-              ></button>
+              >
+                <svg pIcon="file-export"></svg>
+              </button>
               <button
                 type="button"
                 pButton
@@ -81,12 +82,13 @@
                 [text]="true"
                 [rounded]="true"
                 severity="success"
-                icon="pi pi-plus-circle"
                 pTooltip="Top up account"
                 ariaLabel="Top up {{ account.name }}"
                 [disabled]="store.operating()"
                 (click)="openTopUp(account)"
-              ></button>
+              >
+                <svg pIcon="plus-circle"></svg>
+              </button>
               <button
                 type="button"
                 pButton
@@ -94,12 +96,13 @@
                 [text]="true"
                 [rounded]="true"
                 severity="warn"
-                icon="pi pi-arrows-h"
                 pTooltip="Transfer money"
                 ariaLabel="Transfer money from {{ account.name }}"
                 [disabled]="store.operating()"
                 (click)="openTransfer(account)"
-              ></button>
+              >
+                <svg pIcon="arrows-h"></svg>
+              </button>
             </div>
           </td>
         </tr>
@@ -131,4 +134,3 @@
   [account]="transferSource()"
   (visibleChange)="transferSource.set(null)"
 />
-

@@ -11,6 +11,7 @@ export interface AccountByIbanInfo {
   status: string;
   isOwn: boolean;
   ownerName: string;
+  iban: string;
 }
 
 export interface CreateAccountRequest {

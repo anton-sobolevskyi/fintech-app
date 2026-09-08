@@ -31,7 +31,9 @@
     </div>
 
     @if (recipientLoading()) {
-      <p-progress-spinner ariaLabel="Looking up account" styleClass="w-8 h-8" />
+      <div class="flex items-center justify-center">
+        <p-progress-spinner ariaLabel="Looking up account" class="h-8 w-8" />
+      </div>
     } @else if (recipientError()) {
       <p-message severity="error" size="small" variant="simple">{{ recipientError() }}</p-message>
     } @else if (recipient()) {
@@ -44,7 +46,9 @@
         <span class="font-semibold">{{ recipient()?.name }}</span>
         <span class="text-sm">Owner: {{ recipient()?.ownerName }}</span>
         <span class="text-sm">Type: {{ recipient()?.type }} · {{ recipient()?.currency }}</span>
-        <span class="text-sm text-muted-color">{{ formattedIban(transferForm.iban().value()) }}</span>
+        <span class="text-sm text-muted-color">
+          {{ formattedIban(transferForm.iban().value()) }}
+        </span>
       </div>
 
       @if (currencyMismatch()) {
@@ -87,12 +91,7 @@
       pButton
       form="transfer-form"
       severity="warn"
-      [disabled]="
-        operating() ||
-        transferForm().invalid() ||
-        !recipient() ||
-        currencyMismatch()
-      "
+      [disabled]="operating() || transferForm().invalid() || !recipient() || currencyMismatch()"
     >
       Confirm transfer
     </button>

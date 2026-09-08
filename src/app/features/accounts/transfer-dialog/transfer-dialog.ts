@@ -81,7 +81,10 @@ export class TransferDialog {
 
   protected lookupRecipient(): void {
     const iban = this.model().iban.replace(/\s/g, '').toUpperCase();
-    if (!iban || !isValidIban(iban) || this.operating()) return;
+    console.log('Looking up IBAN:', iban);
+    console.log(this.recipient()?.iban);
+
+    if (!iban || !isValidIban(iban) || this.operating() || this.recipient()?.iban === iban) return;
     this.store.lookupByIban(iban);
   }
 
