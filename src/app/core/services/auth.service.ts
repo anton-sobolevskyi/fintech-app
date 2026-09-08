@@ -40,8 +40,6 @@ export class AuthService {
           },
         };
 
-        await setDoc(doc(this.firestore, 'users', firebaseUser.uid), userProfile);
-
         return {
           id: firebaseUser.uid,
           ...userProfile,
