@@ -11,7 +11,8 @@
     "serve:ssr:fintech-app": "node dist/fintech-app/server/server.mjs",
     "generate:env": "tsx scripts/generate-prod-env.mts",
     "prestart": "tsx scripts/set-env.mts",
-    "prebuild": "tsx scripts/set-env.mts -- --prod"
+    "prebuild": "tsx scripts/set-env.mts -- --prod",
+    "prepare": "husky"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -53,6 +54,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.19.43",
     "@vitest/coverage-v8": "^4.1.11",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
