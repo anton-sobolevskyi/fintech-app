@@ -1,75 +1,164 @@
-# FintechApp
+# Fintech App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.5.
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://fintech-app-3aacb.web.app/)
 
-## Development server
+Modern personal finance dashboard with accounts, transfers, top-ups, and PDF reports.
 
-To start a local development server, run:
+**Live:** [fintech-app-3aacb.web.app](https://fintech-app-3aacb.web.app/)
 
-```bash
-ng serve
+## Goals / Purpose
+
+Portfolio project built to demonstrate frontend and full-stack skills relevant to job applications:
+
+- Production-style fintech UI with Angular 22 (signals, standalone components, Signal Forms)
+- Secure money operations via Firebase Cloud Functions
+- State management with NgRx Signals, real-time-style updates via an event bus
+- Deployed app (Firebase Hosting) with auth, roles, and accessible UI
+
+## Features
+
+- Email/password authentication with role-based access (user / admin)
+- Dashboard with balance, cash flow chart, and recent activity
+- Accounts: create, top-up, transfer by IBAN, generate PDF report
+- Transactions list with filters and pagination
+- Users management (admin)
+- Profile settings (theme, language)
+- Dark / light theme and responsive layout
+
+## Tech Stack
+
+| Layer        | Technology                                      |
+|--------------|-------------------------------------------------|
+| Frontend     | Angular 22 (standalone components)              |
+| State        | NgRx Store + NgRx Signals                       |
+| UI           | PrimeNG 22, PrimeIcons, Tailwind CSS 4          |
+| Backend      | Firebase (Auth, Firestore, Functions, Storage)  |
+| PDF          | PDFKit (Cloud Function)                         |
+| Charts       | Chart.js                                        |
+| Forms        | Angular Signal Forms                            |
+| Testing      | Vitest                                          |
+| Deploy       | Firebase Hosting                                |
+| Language     | TypeScript 6                                    |
+
+## Architecture Highlights
+
+- Signals-first state management (`@ngrx/signals`)
+- Feature-based structure with lazy-loaded routes
+- Centralized event bus (`EventService`) for cross-feature updates
+- Critical operations (create account, top-up, transfer) run in Cloud Functions
+- PDF reports generated on Firestore `onCreate` trigger and stored in Storage
+- Strict TypeScript and accessibility (WCAG AA) focus
+
+## Project Structure
+
+```
+src/app/
+├── core/
+│   ├── guards/
+│   ├── models/
+│   ├── services/          # AccountService, AccountOperationsService, EventService…
+│   └── store/
+├── features/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── accounts/          # + TopUpDialog, TransferDialog
+│   ├── transactions/
+│   ├── users/
+│   ├── profile/
+│   ├── data-sources/
+│   └── reports/
+├── layout/
+└── shared/
+
+functions/
+├── src/
+│   ├── index.ts
+│   ├── transactions.ts    # createAccount, topUpAccount, transferFunds, lookupAccountByIban
+│   ├── generateReport.ts  # onReportCreated (PDF)
+│   └── utils/
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Getting Started
 
-## Code scaffolding
+### Prerequisites
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js 20+
+- npm 11+
+- Firebase project (Auth, Firestore, Functions, Storage)
+
+### Installation
 
 ```bash
-ng generate component component-name
+git clone https://github.com/anton-sobolevskyi/fintech-app.git
+cd fintech-app
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Environment
 
 ```bash
-ng generate --help
+npm run prestart          # development env files
+npm run prebuild          # production env files
 ```
 
-## Building
+Configure Firebase credentials via the generated environment files / project env scripts.
 
-To build the project run:
+### Development
 
 ```bash
-ng build
+npm start
+# → http://localhost:4200
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Build
 
 ```bash
-ng test
+npm run build
 ```
 
-### Code coverage
-
-To run the unit tests once with a coverage report, use:
+### Tests
 
 ```bash
+npm test
+# coverage (CI gate ≥ 80%):
 npm run test:ci
 ```
 
-Coverage reports (HTML + Cobertura XML) are generated in `coverage/fintech-app/`.
+## Scripts
 
-Coverage thresholds are enforced in `angular.json` (`coverageThresholds`): statements, branches,
-functions and lines must each be **≥ 80%**, otherwise the test run fails. This gate also runs in
-CI (GitHub Actions) before every deploy. Files that are pure application wiring (`src/main.ts`,
-`src/app/app.config.ts`, `src/app/app.routes.server.ts`, `src/environments/**`) are excluded from
-the metric via `coverageExclude`.
+| Command | Description |
+|---------|-------------|
+| `npm start` | Dev server (`ng serve`) |
+| `npm run build` | Production build |
+| `npm test` | Unit tests (Vitest) |
+| `npm run test:ci` | Tests with coverage report |
+| `npm run prestart` | Generate development environment |
+| `npm run prebuild` | Generate production environment |
+| `npm run generate:env` | Generate production env via script |
 
-## Running end-to-end tests
+## Key Implementation Details
 
-For end-to-end (e2e) testing, run:
+### Callable Cloud Functions
 
-```bash
-ng e2e
-```
+| Function | Purpose |
+|----------|---------|
+| `createAccount` | Create account + unique UA IBAN |
+| `topUpAccount` | Top-up balance |
+| `transferFunds` | Transfer between accounts |
+| `lookupAccountByIban` | Resolve recipient by IBAN |
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Triggers
 
-## Additional Resources
+| Function | Trigger | Purpose |
+|----------|---------|---------|
+| `onReportCreated` | Firestore `reports/{id}` onCreate | Build PDF, upload to Storage, set download URL |
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Report flow: client creates a `reports` document → function fetches recent transactions → PDFKit builds PDF → Storage upload → document updated with `status: "ready"` and signed `downloadUrl`.
+
+### Event bus
+
+`EventService` emits `account.created`, `account.topup`, `account.transfer`, `transactions.changed`, etc., so Dashboard and other features can refresh without tight coupling.
+
+## License
+
+Portfolio project. Free to use for learning purposes.
