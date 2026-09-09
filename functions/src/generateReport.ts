@@ -1,8 +1,8 @@
-import {onDocumentCreated} from "firebase-functions/v2/firestore";
-import {logger} from "firebase-functions";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { logger } from "firebase-functions";
 import * as admin from "firebase-admin";
 import PDFDocument from "pdfkit";
-import {Writable} from "stream";
+import { Writable } from "stream";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -14,7 +14,7 @@ const isEmulator =
 
 const buildPdfBuffer = (title: string, lines: string[]): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({margin: 50});
+    const doc = new PDFDocument({ margin: 50 });
     const chunks: Buffer[] = [];
     const stream = new Writable({
       write(chunk, _enc, cb) {
@@ -25,7 +25,7 @@ const buildPdfBuffer = (title: string, lines: string[]): Promise<Buffer> => {
     stream.on("finish", () => resolve(Buffer.concat(chunks)));
     stream.on("error", reject);
     doc.pipe(stream);
-    doc.fontSize(18).text(title, {underline: true});
+    doc.fontSize(18).text(title, { underline: true });
     doc.moveDown();
     doc.fontSize(11);
     for (const line of lines) doc.text(line);
@@ -62,7 +62,7 @@ export const onReportCreated = onDocumentCreated(document, async (event) => {
       "",
       "Recent transactions:",
       ...txSnap.docs.map((d) => {
-        const {description, type, amount, currency} = d.data();
+        const { description, type, amount, currency } = d.data();
         return `- ${description ?? ""} | ${type} | ${amount} ${currency}`;
       }),
     ];
@@ -73,7 +73,7 @@ export const onReportCreated = onDocumentCreated(document, async (event) => {
 
     await file.save(pdf, {
       contentType: "application/pdf",
-      metadata: {metadata: {userId, reportId}},
+      metadata: { metadata: { userId, reportId } },
     });
 
     let downloadUrl: string;
@@ -102,6 +102,6 @@ export const onReportCreated = onDocumentCreated(document, async (event) => {
     logger.info(`Report ${reportId} ready`);
   } catch (err) {
     logger.error(err);
-    await snap.ref.update({status: "failed"});
+    await snap.ref.update({ status: "failed" });
   }
 });
