@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TopUpDialog } from './top-up-dialog';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -48,5 +49,29 @@ describe('TopUpDialog', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should emit visibleChange on hide', () => {
+    const spy = vi.spyOn(component.visibleChange, 'emit');
+    (component as unknown as { onHide: () => void }).onHide();
+    expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('should render the dialog template with visible input', async () => {
+    fixture.componentRef.setInput('visible', true);
+    fixture.componentRef.setInput('account', { id: 'a1', name: 'Main', currency: 'USD' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Top up');
+  });
+
+  it('should render error message when store has error', async () => {
+    const { patchState } = await import('@ngrx/signals');
+    const store = TestBed.inject(AccountsStore);
+    patchState(store as never, { error: 'Boom' });
+    fixture.componentRef.setInput('visible', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Boom');
   });
 });

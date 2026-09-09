@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Sidebar } from './sidebar';
@@ -24,5 +25,12 @@ describe('Sidebar', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should expose nav items based on role', () => {
+    expect(component.navItems().length).toBeGreaterThan(0);
+    expect(component.activeNavItem()).toBeTruthy();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain(component.navItems()[0].label);
   });
 });

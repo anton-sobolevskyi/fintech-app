@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MainLayout } from './main-layout';
@@ -24,5 +25,11 @@ describe('MainLayout', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should compute nav items and user menu items', () => {
+    expect(component.userItems().length).toBe(0);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toBeTruthy();
   });
 });

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReportFormDialog } from './report-form-dialog';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -25,5 +26,18 @@ describe('ReportFormDialog', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should compute account options after init loads accounts', () => {
+    (
+      component as unknown as { accounts: { set: (v: unknown[]) => void } }
+    ).accounts.set([{ id: 'a1', name: 'Main', currency: 'USD' }]);
+    expect(component.accountOptions()).toEqual([{ label: 'Main (USD)', value: 'a1' }]);
+  });
+
+  it('should emit visibleChange on hide', () => {
+    const spy = vi.spyOn(component.visibleChange, 'emit');
+    component.onHide();
+    expect(spy).toHaveBeenCalledWith(false);
   });
 });

@@ -44,6 +44,22 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
+### Code coverage
+
+To run the unit tests once with a coverage report, use:
+
+```bash
+npm run test:ci
+```
+
+Coverage reports (HTML + Cobertura XML) are generated in `coverage/fintech-app/`.
+
+Coverage thresholds are enforced in `angular.json` (`coverageThresholds`): statements, branches,
+functions and lines must each be **≥ 80%**, otherwise the test run fails. This gate also runs in
+CI (GitHub Actions) before every deploy. Files that are pure application wiring (`src/main.ts`,
+`src/app/app.config.ts`, `src/app/app.routes.server.ts`, `src/environments/**`) are excluded from
+the metric via `coverageExclude`.
+
 ## Running end-to-end tests
 
 For end-to-end (e2e) testing, run:
