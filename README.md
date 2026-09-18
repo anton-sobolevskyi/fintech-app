@@ -162,3 +162,8 @@ Report flow: client creates a `reports` document → function fetches recent tra
 ## License
 
 Portfolio project. Free to use for learning purposes.
+
+
+```bash
+firebase login:ci
+```

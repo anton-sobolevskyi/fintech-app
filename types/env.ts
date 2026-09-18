@@ -2,6 +2,7 @@ export interface EnvConfig {
   production: boolean;
   useEmulators: boolean;
   primeNgLicense: string;
+  sentryDsn: string;
   firebase: {
     apiKey: string;
     authDomain: string;

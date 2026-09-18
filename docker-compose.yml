@@ -43,6 +43,7 @@ services:
       - ./emulator-data:/app/emulator-data
     environment:
       FIREBASE_PROJECT: fintech-app-3aacb
+      FIREBASE_TOKEN: "${FIREBASE_TOKEN}"
     deploy:
       resources:
         limits:
