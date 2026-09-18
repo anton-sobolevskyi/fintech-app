@@ -56,6 +56,7 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           PRIME_NG_LICENSE: ${{ secrets.PRIME_NG_LICENSE }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: npm run generate:env && npm run prebuild
 
       - run: npm run build
