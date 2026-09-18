@@ -1,0 +1,70 @@
+# Override in .env next to this file, e.g. APP_MEMORY=4G
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    deploy:
+      resources:
+        limits:
+          cpus: "${APP_CPUS:-2.0}"
+          memory: "${APP_MEMORY:-2G}"
+        reservations:
+          cpus: "${APP_CPU_RESERVE:-0.25}"
+          memory: "${APP_MEMORY_RESERVE:-512M}"
+    depends_on:
+      firebase:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  firebase:
+    build:
+      context: .
+      dockerfile: docker/firebase/Dockerfile
+    ports:
+      - "4000:4000" # Emulator UI
+      - "4400:4400" # Hub
+      - "4500:4500" # Logging
+      - "5001:5001" # Functions
+      - "8080:8080" # Firestore
+      - "9099:9099" # Auth
+      - "9199:9199" # Storage
+    volumes:
+      - .:/app
+      - firebase_emulator_cache:/root/.cache/firebase
+      - ./emulator-data:/app/emulator-data
+    environment:
+      FIREBASE_PROJECT: fintech-app-3aacb
+    deploy:
+      resources:
+        limits:
+          cpus: "${FIREBASE_CPUS:-2.0}"
+          memory: "${FIREBASE_MEMORY:-3G}"
+        reservations:
+          cpus: "${FIREBASE_CPU_RESERVE:-0.5}"
+          memory: "${FIREBASE_MEMORY_RESERVE:-1G}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4400').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+    stdin_open: true
+    tty: true
+
+volumes:
+  firebase_emulator_cache:

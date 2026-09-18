@@ -17,6 +17,7 @@ const config: EnvConfig = {
   production: true,
   useEmulators: false,
   primeNgLicense: requireEnv('PRIME_NG_LICENSE'),
+  sentryDsn: requireEnv('SENTRY_DSN'),
   firebase: {
     apiKey: requireEnv('FIREBASE_API_KEY'),
     authDomain: requireEnv('FIREBASE_AUTH_DOMAIN'),

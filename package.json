@@ -11,6 +11,9 @@
     "serve:ssr:fintech-app": "node dist/fintech-app/server/server.mjs",
     "generate:env": "tsx scripts/generate-prod-env.mts",
     "prestart": "tsx scripts/set-env.mts",
+    "install:functions": "npm ci --prefix functions",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "prebuild": "tsx scripts/set-env.mts -- --prod",
     "prepare": "husky"
   },

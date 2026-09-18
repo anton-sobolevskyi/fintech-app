@@ -50,3 +50,4 @@ config/env.prod.yaml
 
 # Firebase
 *-debug.log
+/emulator-data
