@@ -1,5 +1,5 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode, ErrorHandler, APP_INITIALIZER } from '@angular/core';
+import { provideRouter, Router } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideStore } from '@ngrx/store';
@@ -11,6 +11,7 @@ import { UiEffects } from './core/store/ui/ui.effects';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { environment } from '../environments/environment';
+import * as Sentry from "@sentry/angular";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,5 +35,20 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+
+    {
+      provide: ErrorHandler,
+      useValue: Sentry.createErrorHandler(),
+    },
+    {
+      provide: Sentry.TraceService,
+      deps: [Router],
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => () => {},
+      deps: [Sentry.TraceService],
+      multi: true,
+    },
   ],
 };

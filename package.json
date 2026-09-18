@@ -36,6 +36,7 @@
     "@ngrx/store-devtools": "^22.0.0",
     "@primeicons/angular": "^8.0.0",
     "@primeuix/themes": "^3.0.0",
+    "@sentry/angular": "^10.75.0",
     "chart.js": "^4.5.1",
     "dotenv": "^17.4.2",
     "express": "^5.1.0",
